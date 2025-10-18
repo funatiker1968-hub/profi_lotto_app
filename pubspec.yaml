@@ -1,0 +1,29 @@
+name: smart_lotto_generator_profi_cloud
+description: Smart Lotto Generator - Profi Version mit Cloud Sync (Platzhalter)
+publish_to: 'none'
+version: 1.0.0+1
+environment:
+  sdk: '>=2.17.0 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.0.15
+  share_plus: ^6.3.0
+  http: ^0.13.5
+  intl: ^0.17.0
+  flutter_localizations:
+    sdk: flutter
+  csv: ^5.0.0
+  # Firebase optional – kann später aktiviert werden
+  firebase_core: ^2.10.0
+  cloud_firestore: ^4.7.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
