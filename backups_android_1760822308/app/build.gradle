@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.smart_lotto_generator_profi_cloud"
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 21
         targetSdkVersion 34
         versionCode 1
         versionName "1.0"
@@ -18,6 +18,7 @@ android {
 
     buildTypes {
         release {
+            // Für Produktions-Signing: hier signConfig setzen (später)
             signingConfig signingConfigs.debug
             minifyEnabled false
             shrinkResources false
@@ -28,7 +29,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-
     kotlinOptions {
         jvmTarget = "17"
     }
@@ -36,4 +36,8 @@ android {
 
 flutter {
     source '../..'
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.23"
 }

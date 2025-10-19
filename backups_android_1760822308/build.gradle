@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.smart_lotto_generator_profi_cloud"
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 21
         targetSdkVersion 34
         versionCode 1
         versionName "1.0"
@@ -37,3 +37,4 @@ android {
 flutter {
     source '../..'
 }
+
