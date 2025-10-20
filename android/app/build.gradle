@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace "com.example.smart_lotto_generator_profi_cloud"
-    compileSdkVersion 34
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.example.smart_lotto_generator_profi_cloud"
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion 34
+        minSdk 21
+        targetSdk 34
         versionCode 1
         versionName "1.0"
     }
@@ -20,20 +20,14 @@ android {
         release {
             signingConfig signingConfigs.debug
             minifyEnabled false
-            shrinkResources false
         }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
     }
 }
 
 flutter {
     source '../..'
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7"
 }
