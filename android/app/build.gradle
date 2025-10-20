@@ -18,9 +18,25 @@ android {
 
     buildTypes {
         release {
+            // ⚙️ Release-Konfiguration
+            minifyEnabled false      // kein Code Shrinking
+            shrinkResources false    // deaktivieren, sonst Build-Fehler
             signingConfig signingConfigs.debug
-            minifyEnabled false
         }
+
+        debug {
+            // Debug-Build bleibt unverändert
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
     }
 }
 
@@ -29,5 +45,5 @@ flutter {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
 }
