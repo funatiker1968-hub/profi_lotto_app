@@ -1,24 +1,18 @@
 pluginManagement {
-    def flutterSdkPath = System.getenv("FLUTTER_ROOT")
-    if (flutterSdkPath == null) {
-        // Standardpfad bei Codemagic
-        flutterSdkPath = "/usr/local/flutter"
-    }
-
-    // Flutter SDK einbinden
-    includeBuild("${flutterSdkPath}")
-
     repositories {
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven { url "https://storage.googleapis.com/download.flutter.io" }
     }
 }
 
 plugins {
-    id("com.android.application") version "8.7.2" apply false
-    id("org.jetbrains.kotlin.android") version "2.0.21" apply false
-    id("dev.flutter.flutter-gradle-plugin") apply false
+    id "com.android.application" version "8.3.0" apply false
+    id "org.jetbrains.kotlin.android" version "1.9.23" apply false
+    id "dev.flutter.flutter-gradle-plugin" apply false
 }
 
 include(":app")
+
+rootProject.name = "smart_lotto_generator_profi_cloud"
