@@ -21,4 +21,9 @@ pluginManagement {
     }
 }
 
-include(":app")
+include ':app'
+
+def flutterProjectRoot = rootProject.projectDir.parentFile.toPath()
+def flutterSdkPath = file("$flutterProjectRoot/../flutter").exists() ? "$flutterProjectRoot/../flutter" : System.getenv("FLUTTER_ROOT")
+
+apply from: "$flutterSdkPath/packages/flutter_tools/gradle/app_plugin_loader.gradle"
