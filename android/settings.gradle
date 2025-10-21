@@ -1,9 +1,11 @@
 pluginManagement {
-    // Flutter SDK-Pfad für Codemagic
     def flutterSdkPath = System.getenv("FLUTTER_ROOT")
     if (flutterSdkPath == null) {
-        flutterSdkPath = "/usr/local/flutter" // Codemagic Default
+        // Standardpfad bei Codemagic
+        flutterSdkPath = "/usr/local/flutter"
     }
+
+    // Flutter SDK einbinden
     includeBuild("${flutterSdkPath}")
 
     repositories {
@@ -14,7 +16,9 @@ pluginManagement {
 }
 
 plugins {
-    id "dev.flutter.flutter-gradle-plugin" apply false
+    id("com.android.application") version "8.7.2" apply false
+    id("org.jetbrains.kotlin.android") version "2.0.21" apply false
+    id("dev.flutter.flutter-gradle-plugin") apply false
 }
 
 include(":app")
