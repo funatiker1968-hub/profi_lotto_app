@@ -1,5 +1,10 @@
 pluginManagement {
-    includeBuild("../flutter")
+    // Flutter SDK-Pfad für Codemagic
+    def flutterSdkPath = System.getenv("FLUTTER_ROOT")
+    if (flutterSdkPath == null) {
+        flutterSdkPath = "/usr/local/flutter" // Codemagic Default
+    }
+    includeBuild("${flutterSdkPath}")
 
     repositories {
         google()
