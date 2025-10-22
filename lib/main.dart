@@ -255,7 +255,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
                       children: [
                         _buildCasinoButton('SPIN', Icons.casino, Color(0xFFC41E3A), _generateNumbers),
                         _buildCasinoButton('SPEICHERN', Icons.save, Color(0xFF228B22), 
-                            _currentNumbers.isEmpty ? null : _saveTip,
+                            _currentNumbers.isEmpty ? () {} : _saveTip,
                             disabled: _currentNumbers.isEmpty),
                       ],
                     ),
