@@ -3,7 +3,9 @@ workflows:
     name: Smart Lotto Generator - Android Release
     max_build_duration: 60
     environment:
-      flutter: stable
+      flutter: "3.22.0"  # 🔥 EXPLIZITE VERSION STATT "stable"
+      groups:
+        - android_signing  # 🔥 SIGNING GRUPPE HINZUFÜGEN
       vars:
         PACKAGE_NAME: "com.example.smart_lotto_generator_profi_cloud"
     scripts:
