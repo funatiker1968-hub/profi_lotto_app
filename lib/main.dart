@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'lotto_service.dart';
+import 'stats_screen.dart';
+import 'tip_analysis_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +49,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
   List<List<int>> _myTips = [];
   int _generatedCount = 0;
   double _totalCost = 0.0;
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -165,6 +168,135 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
     );
   }
 
+  Widget _buildNavigationButton(String title, IconData icon, VoidCallback onTap) {
+    return Expanded(
+      child: Card(
+        elevation: 4,
+        color: Color(0xFF2D2D2D),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(color: Colors.grey[700]!, width: 1),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: Color(0xFFFFD700), size: 24),
+                const SizedBox(height: 8),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _navigateToStats() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => StatsScreen(allTips: _myTips),
+      ),
+    );
+  }
+
+  void _navigateToTipAnalysis() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => TipAnalysisScreen(allTips: _myTips),
+      ),
+    );
+  }
+
+  void _showWinningSimulation() {
+    if (_myTips.isEmpty) {
+      _showSuccessSnackbar('Erstelle zuerst einige Tipps!');
+      return;
+    }
+
+    final simulation = LottoService.simulateWinnings(_myTips, 10000);
+    final probability = simulation['winningProbability'] * 100;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Color(0xFF2D2D2D),
+        title: const Text(
+          '🎰 GEWINNSIMULATION',
+          style: TextStyle(
+            color: Color(0xFFFFD700),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSimulationRow('Simulationen:', '10.000'),
+            _buildSimulationRow('Deine Tipps:', '${_myTips.length}'),
+            _buildSimulationRow('Gewinnwahrscheinlichkeit:', '${probability.toStringAsFixed(2)}%'),
+            const SizedBox(height: 16),
+            const Text(
+              'Ergebnisse pro Gewinnklasse:',
+              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+            ),
+            ..._buildSimulationResults(simulation['results']),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'SCHLIESSEN',
+              style: TextStyle(color: Color(0xFFFFD700)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSimulationRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.grey)),
+          Text(value, style: const TextStyle(color: Color(0xFFFFD700), fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildSimulationResults(Map<int, int> results) {
+    final sortedResults = results.entries.toList()
+      ..sort((a, b) => b.key.compareTo(a.key));
+    
+    return sortedResults.map((entry) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('${entry.key} Richtige:', style: const TextStyle(color: Colors.grey)),
+          Text('${entry.value}x', style: const TextStyle(color: Color(0xFFFFD700))),
+        ],
+      ),
+    )).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -175,12 +307,12 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
             Icon(Icons.casino, color: Color(0xFFFFD700)),
             SizedBox(width: 12),
             Text(
-              'CASINO LOTTO',
+              'CASINO LOTTO PRO',
               style: TextStyle(
                 color: Color(0xFFFFD700),
                 fontWeight: FontWeight.bold,
-                fontSize: 20,
-                letterSpacing: 1.2,
+                fontSize: 18,
+                letterSpacing: 1.1,
               ),
             ),
           ],
@@ -189,6 +321,11 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
         elevation: 8,
         shadowColor: Colors.black.withOpacity(0.8),
         actions: [
+          if (_myTips.isNotEmpty) IconButton(
+            icon: const Icon(Icons.analytics, color: Color(0xFFFFD700)),
+            onPressed: _navigateToStats,
+            tooltip: 'Statistik anzeigen',
+          ),
           PopupMenuButton<String>(
             icon: Icon(Icons.palette, color: Color(0xFFFFD700)),
             onSelected: (val) {
@@ -262,6 +399,19 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
                   ],
                 ),
               ),
+            ),
+            
+            const SizedBox(height: 20),
+
+            // Navigation zu erweiterten Features
+            Row(
+              children: [
+                _buildNavigationButton('STATISTIK', Icons.bar_chart, _navigateToStats),
+                const SizedBox(width: 10),
+                _buildNavigationButton('TIPP ANALYSE', Icons.analytics, _navigateToTipAnalysis),
+                const SizedBox(width: 10),
+                _buildNavigationButton('GEWINN-SIM', Icons.attach_money, _showWinningSimulation),
+              ],
             ),
             
             const SizedBox(height: 20),
