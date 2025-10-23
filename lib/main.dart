@@ -44,7 +44,6 @@ class _MyAppState extends State<MyApp> {
           backgroundColor: Colors.blueGrey,
           foregroundColor: Colors.white,
         ),
-        cardTheme: CardTheme(
           color: Colors.grey[800],
           elevation: 4,
         ),
@@ -57,7 +56,6 @@ class _MyAppState extends State<MyApp> {
           backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
         ),
-        cardTheme: const CardTheme(
           color: Colors.white,
           elevation: 4,
         ),
