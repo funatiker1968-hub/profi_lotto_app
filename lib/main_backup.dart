@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'services/app_state.dart';
-import 'services/jackpot_service.dart';
 import 'lotto_service.dart';
 import 'stats_screen.dart';
 import 'tip_analysis_screen.dart';
-import 'jackpot_settings_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -78,23 +76,8 @@ class LottoTipScreen extends StatefulWidget {
 
 class _LottoTipScreenState extends State<LottoTipScreen> {
   final LottoService _lottoService = LottoService();
-  final JackpotService _jackpotService = JackpotService();
   final List<Map<String, dynamic>> _myTips = [];
   List<int> _currentTip = [];
-  Map<String, dynamic> _currentJackpots = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _loadJackpots();
-  }
-
-  Future<void> _loadJackpots() async {
-    final jackpots = await _jackpotService.getCurrentJackpots();
-    setState(() {
-      _currentJackpots = jackpots;
-    });
-  }
 
   void _generateTip() {
     setState(() {
@@ -120,60 +103,6 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
     });
   }
 
-  // JACKPOT CARD - GROSS UND SICHTBAR
-  Widget _buildJackpotCard(Map<String, dynamic> jackpot, String gameKey) {
-    final game = jackpot[gameKey];
-    if (game == null) return const SizedBox.shrink();
-
-    return Card(
-      color: Colors.amber[50],
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: Colors.amber, width: 2),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.attach_money, color: Colors.green[700], size: 24),
-                const SizedBox(width: 8),
-                Text(
-                  game['gameName'] ?? gameKey,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              _jackpotService.formatJackpotAmount(game['amount']),
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Nächste Ziehung: ${_jackpotService.formatNextDraw(game['nextDraw'])}',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
@@ -185,19 +114,6 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
             backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
             actions: [
-              // JACKPOT NOTIFICATION BUTTON - NEU
-              IconButton(
-                icon: const Icon(Icons.attach_money),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => JackpotSettingsScreen(appState: widget.appState),
-                    ),
-                  );
-                },
-                tooltip: 'Jackpot Einstellungen',
-              ),
               IconButton(
                 icon: Text(widget.appState.getLanguageFlag(), 
                         style: const TextStyle(fontSize: 20)),
@@ -242,26 +158,6 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // JACKPOT ANZEIGE - GROSS UND OBEN
-                if (_currentJackpots.isNotEmpty) ...[
-                  const Text(
-                    '🎰 AKTUELLE JACKPOTS 🎰',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  _buildJackpotCard(_currentJackpots, 'lotto6aus49'),
-                  const SizedBox(height: 12),
-                  _buildJackpotCard(_currentJackpots, 'eurojackpot'),
-                  const SizedBox(height: 20),
-                  const Divider(height: 1, color: Colors.grey),
-                  const SizedBox(height: 20),
-                ],
-                
-                // TIPP GENERATOR
                 Card(
                   color: Theme.of(context).cardTheme.color,
                   elevation: Theme.of(context).cardTheme.elevation,
