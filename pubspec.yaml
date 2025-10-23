@@ -18,7 +18,7 @@ dependencies:
   csv: ^6.0.0
   flutter_localizations:
     sdk: flutter
-  intl: ^0.18.1
+  intl: ^0.19.0  # 🔥 KORRIGIERT VON 0.18.1 AUF 0.19.0
 
 dev_dependencies:
   flutter_test:
