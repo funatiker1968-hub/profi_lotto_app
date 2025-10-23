@@ -89,7 +89,7 @@ class _TipAnalysisScreenState extends State<TipAnalysisScreen> {
                           ),
                           SizedBox(height: 12),
                           Text('${_translate('totalTips')}: ${_analysis['totalTips']}'),
-                          Text('${_translate('dateRange')}: ${_analysisService._formatDate(_analysis['dateRange']['start'])} - ${_analysisService._formatDate(_analysis['dateRange']['end'])}'),
+                          Text('${_translate('dateRange')}: ${_analysisService.formatDate(_analysis['dateRange']['start'])} - ${_analysisService.formatDate(_analysis['dateRange']['end'])}'),
                           Text('${_translate('averageNumbers')}: ${_analysis['averageNumbersPerTip'].toStringAsFixed(1)}'),
                         ],
                       ),

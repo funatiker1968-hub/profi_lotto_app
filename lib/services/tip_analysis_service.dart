@@ -69,17 +69,18 @@ class TipAnalysisService {
     return {'start': earliest!, 'end': latest!};
   }
 
+  // ÖFFENTLICHE Methode für Datumsformatierung
+  String formatDate(DateTime date) {
+    return '${date.day}.${date.month}.${date.year}';
+  }
+
   // Erstellt eine Zusammenfassung der Analyse
   Map<String, dynamic> getAnalysisSummary(Map<String, dynamic> analysis) {
     return {
       'summary': 'Analyse von ${analysis['totalTips']} Tipps',
       'topNumbers': analysis['mostFrequentNumbers'],
-      'dateRange': '${_formatDate(analysis['dateRange']['start'])} - ${_formatDate(analysis['dateRange']['end'])}',
+      'dateRange': '${formatDate(analysis['dateRange']['start'])} - ${formatDate(analysis['dateRange']['end'])}',
       'averageNumbers': analysis['averageNumbersPerTip'].toStringAsFixed(1),
     };
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}.${date.month}.${date.year}';
   }
 }
