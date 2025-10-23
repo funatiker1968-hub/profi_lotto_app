@@ -1,5 +1,5 @@
-name: smart_lotto_generator_profi_cloud
-description: Eine smarte Lotto App mit Flutter
+name: lotto_world_pro
+description: International lottery app with real data, multiple systems and custom generators
 publish_to: "none"
 
 version: 1.0.0+1
