@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'lotto_service.dart';
 import 'stats_screen.dart';
 import 'tip_analysis_screen.dart';
+import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,20 +19,41 @@ class SmartLottoApp extends StatefulWidget {
 
 class _SmartLottoAppState extends State<SmartLottoApp> {
   ThemeMode _mode = ThemeMode.system;
+  Locale _locale = const Locale('de'); // Standard: Deutsch
+
+  void _changeLanguage(Locale newLocale) {
+    setState(() {
+      _locale = newLocale;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Smart Lotto Generator',
+      title: 'Lotto World Pro',
       themeMode: _mode,
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
+      locale: _locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('de'), // Deutsch
+        Locale('en'), // Englisch
+        Locale('tr'), // Türkisch
+      ],
       home: LottoHomeScreen(
         onThemeChanged: (mode) {
           setState(() {
             _mode = mode;
           });
         },
+        onLanguageChanged: _changeLanguage,
+        currentLocale: _locale,
       ),
     );
   }
@@ -37,8 +61,14 @@ class _SmartLottoAppState extends State<SmartLottoApp> {
 
 class LottoHomeScreen extends StatefulWidget {
   final Function(ThemeMode) onThemeChanged;
+  final Function(Locale) onLanguageChanged;
+  final Locale currentLocale;
 
-  const LottoHomeScreen({required this.onThemeChanged});
+  const LottoHomeScreen({
+    required this.onThemeChanged,
+    required this.onLanguageChanged,
+    required this.currentLocale,
+  });
 
   @override
   State<LottoHomeScreen> createState() => _LottoHomeScreenState();
@@ -47,9 +77,7 @@ class LottoHomeScreen extends StatefulWidget {
 class _LottoHomeScreenState extends State<LottoHomeScreen> {
   List<int> _currentNumbers = [];
   List<List<int>> _myTips = [];
-  int _generatedCount = 0;
   double _totalCost = 0.0;
-  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -64,7 +92,6 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
   void _generateNumbers() {
     setState(() {
       _currentNumbers = LottoService.generateLottoNumbers();
-      _generatedCount++;
       _totalCost = LottoService.calculateCost(_myTips.length, 1.50);
     });
   }
@@ -75,7 +102,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
         _myTips.add(List.from(_currentNumbers));
         _totalCost = LottoService.calculateCost(_myTips.length, 1.50);
       });
-      _showSuccessSnackbar('Tipp gespeichert!');
+      _showSuccessSnackbar(AppLocalizations.of(context)!.tipSaved);
     }
   }
 
@@ -84,7 +111,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
       _myTips.clear();
       _totalCost = 0.0;
     });
-    _showSuccessSnackbar('Alle Tipps gelöscht!');
+    _showSuccessSnackbar(AppLocalizations.of(context)!.allTipsDeleted);
   }
 
   void _generateMultipleTips(int count) {
@@ -93,7 +120,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
       _myTips.addAll(newTips);
       _totalCost = LottoService.calculateCost(_myTips.length, 1.50);
     });
-    _showSuccessSnackbar('$count Tipps generiert!');
+    _showSuccessSnackbar(AppLocalizations.of(context)!.tipsGenerated);
   }
 
   void _showSuccessSnackbar(String message) {
@@ -116,7 +143,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
           stops: [0.1, 1.0],
         ),
         borderRadius: BorderRadius.circular(size / 2),
-        border: Border.all(color: Color(0xFFB8860B), width: 2),
+        border: Border.all(color: const Color(0xFFB8860B), width: 2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.5),
@@ -124,7 +151,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
             offset: const Offset(2, 2),
           ),
           BoxShadow(
-            color: Color(0xFFFFD700).withOpacity(0.3),
+            color: const Color(0xFFFFD700).withOpacity(0.3),
             blurRadius: 4,
             spreadRadius: 1,
           ),
@@ -134,7 +161,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
         child: Text(
           number.toString().padLeft(2, '0'),
           style: TextStyle(
-            color: Color(0xFF8B4513),
+            color: const Color(0xFF8B4513),
             fontWeight: FontWeight.bold,
             fontSize: size * 0.35,
           ),
@@ -149,7 +176,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
       icon: Icon(icon, color: Colors.white),
       label: Text(
         text,
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 14,
@@ -172,7 +199,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
     return Expanded(
       child: Card(
         elevation: 4,
-        color: Color(0xFF2D2D2D),
+        color: const Color(0xFF2D2D2D),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
           side: BorderSide(color: Colors.grey[700]!, width: 1),
@@ -185,7 +212,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: Color(0xFFFFD700), size: 24),
+                Icon(icon, color: const Color(0xFFFFD700), size: 24),
                 const SizedBox(height: 8),
                 Text(
                   title,
@@ -205,6 +232,10 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
   }
 
   void _navigateToStats() {
+    if (_myTips.isEmpty) {
+      _showSuccessSnackbar(AppLocalizations.of(context)!.createTipsFirst);
+      return;
+    }
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => StatsScreen(allTips: _myTips),
@@ -213,6 +244,10 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
   }
 
   void _navigateToTipAnalysis() {
+    if (_myTips.isEmpty) {
+      _showSuccessSnackbar(AppLocalizations.of(context)!.createTipsFirst);
+      return;
+    }
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => TipAnalysisScreen(allTips: _myTips),
@@ -222,7 +257,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
 
   void _showWinningSimulation() {
     if (_myTips.isEmpty) {
-      _showSuccessSnackbar('Erstelle zuerst einige Tipps!');
+      _showSuccessSnackbar(AppLocalizations.of(context)!.createTipsFirst);
       return;
     }
 
@@ -232,10 +267,10 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFF2D2D2D),
-        title: const Text(
-          '🎰 GEWINNSIMULATION',
-          style: TextStyle(
+        backgroundColor: const Color(0xFF2D2D2D),
+        title: Text(
+          AppLocalizations.of(context)!.winSimulation,
+          style: const TextStyle(
             color: Color(0xFFFFD700),
             fontWeight: FontWeight.bold,
           ),
@@ -244,23 +279,17 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSimulationRow('Simulationen:', '10.000'),
-            _buildSimulationRow('Deine Tipps:', '${_myTips.length}'),
-            _buildSimulationRow('Gewinnwahrscheinlichkeit:', '${probability.toStringAsFixed(2)}%'),
-            const SizedBox(height: 16),
-            const Text(
-              'Ergebnisse pro Gewinnklasse:',
-              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
-            ),
-            ..._buildSimulationResults(simulation['results']),
+            _buildSimulationRow('${AppLocalizations.of(context)!.totalTips}:', '${_myTips.length}'),
+            _buildSimulationRow('Simulations:', '10,000'),
+            _buildSimulationRow('Winning probability:', '${probability.toStringAsFixed(2)}%'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text(
-              'SCHLIESSEN',
-              style: TextStyle(color: Color(0xFFFFD700)),
+            child: Text(
+              'OK',
+              style: const TextStyle(color: Color(0xFFFFD700)),
             ),
           ),
         ],
@@ -281,34 +310,62 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
     );
   }
 
-  List<Widget> _buildSimulationResults(Map<int, int> results) {
-    final sortedResults = results.entries.toList()
-      ..sort((a, b) => b.key.compareTo(a.key));
-    
-    return sortedResults.map((entry) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text('${entry.key} Richtige:', style: const TextStyle(color: Colors.grey)),
-          Text('${entry.value}x', style: const TextStyle(color: Color(0xFFFFD700))),
-        ],
+  void _showLanguageDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2D2D2D),
+        title: Text(
+          '🌍 ${AppLocalizations.of(context)!.selectTip}',
+          style: const TextStyle(
+            color: Color(0xFFFFD700),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildLanguageOption('🇩🇪 Deutsch', const Locale('de')),
+            _buildLanguageOption('🇬🇧 English', const Locale('en')),
+            _buildLanguageOption('🇹🇷 Türkçe', const Locale('tr')),
+          ],
+        ),
       ),
-    )).toList();
+    );
+  }
+
+  Widget _buildLanguageOption(String label, Locale locale) {
+    final isSelected = widget.currentLocale.languageCode == locale.languageCode;
+    return ListTile(
+      leading: isSelected ? const Icon(Icons.check, color: Color(0xFFFFD700)) : null,
+      title: Text(
+        label,
+        style: TextStyle(
+          color: isSelected ? const Color(0xFFFFD700) : Colors.white,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      onTap: () {
+        widget.onLanguageChanged(locale);
+        Navigator.of(context).pop();
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      backgroundColor: Color(0xFF1A1A1A),
+      backgroundColor: const Color(0xFF1A1A1A),
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.casino, color: Color(0xFFFFD700)),
-            SizedBox(width: 12),
+            const Icon(Icons.casino, color: Color(0xFFFFD700)),
+            const SizedBox(width: 12),
             Text(
-              'CASINO LOTTO PRO',
-              style: TextStyle(
+              l10n.appTitle,
+              style: const TextStyle(
                 color: Color(0xFFFFD700),
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -317,17 +374,22 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
             ),
           ],
         ),
-        backgroundColor: Color(0xFF2D2D2D),
+        backgroundColor: const Color(0xFF2D2D2D),
         elevation: 8,
         shadowColor: Colors.black.withOpacity(0.8),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.language, color: Color(0xFFFFD700)),
+            onPressed: _showLanguageDialog,
+            tooltip: 'Change Language',
+          ),
           if (_myTips.isNotEmpty) IconButton(
             icon: const Icon(Icons.analytics, color: Color(0xFFFFD700)),
             onPressed: _navigateToStats,
-            tooltip: 'Statistik anzeigen',
+            tooltip: l10n.statistics,
           ),
           PopupMenuButton<String>(
-            icon: Icon(Icons.palette, color: Color(0xFFFFD700)),
+            icon: const Icon(Icons.palette, color: Color(0xFFFFD700)),
             onSelected: (val) {
               ThemeMode newMode;
               if (val == 'light') newMode = ThemeMode.light;
@@ -336,10 +398,10 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
               
               widget.onThemeChanged(newMode);
             },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'light', child: Text('Hell')),
-              PopupMenuItem(value: 'dark', child: Text('Dunkel')),
-              PopupMenuItem(value: 'system', child: Text('System')),
+            itemBuilder: (context) => [
+              PopupMenuItem(value: 'light', child: Text(l10n.light)),
+              PopupMenuItem(value: 'dark', child: Text(l10n.dark)),
+              PopupMenuItem(value: 'system', child: Text(l10n.system)),
             ],
           ),
         ],
@@ -350,18 +412,18 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
           children: [
             Card(
               elevation: 8,
-              color: Color(0xFF2D2D2D),
+              color: const Color(0xFF2D2D2D),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
-                side: BorderSide(color: Color(0xFFFFD700), width: 1),
+                side: const BorderSide(color: Color(0xFFFFD700), width: 1),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    const Text(
-                      '🎲 DEINE GEWINNZAHLEN 🎲',
-                      style: TextStyle(
+                    Text(
+                      '🎲 ${l10n.yourWinningNumbers} 🎲',
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFFFFD700),
@@ -370,13 +432,13 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
                     ),
                     const SizedBox(height: 20),
                     _currentNumbers.isEmpty
-                        ? const Column(
+                        ? Column(
                             children: [
-                              Icon(Icons.casino_outlined, size: 50, color: Colors.grey),
-                              SizedBox(height: 10),
+                              const Icon(Icons.casino_outlined, size: 50, color: Colors.grey),
+                              const SizedBox(height: 10),
                               Text(
-                                'Drücke "SPIN" um zu starten',
-                                style: TextStyle(fontSize: 16, color: Colors.grey),
+                                l10n.pressSpinToStart,
+                                style: const TextStyle(fontSize: 16, color: Colors.grey),
                               ),
                             ],
                           )
@@ -390,8 +452,8 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        _buildCasinoButton('SPIN', Icons.casino, Color(0xFFC41E3A), _generateNumbers),
-                        _buildCasinoButton('SPEICHERN', Icons.save, Color(0xFF228B22), 
+                        _buildCasinoButton(l10n.spin, Icons.casino, const Color(0xFFC41E3A), _generateNumbers),
+                        _buildCasinoButton(l10n.save, Icons.save, const Color(0xFF228B22), 
                             _currentNumbers.isEmpty ? () {} : _saveTip,
                             disabled: _currentNumbers.isEmpty),
                       ],
@@ -406,11 +468,11 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
             // Navigation zu erweiterten Features
             Row(
               children: [
-                _buildNavigationButton('STATISTIK', Icons.bar_chart, _navigateToStats),
+                _buildNavigationButton(l10n.statistics, Icons.bar_chart, _navigateToStats),
                 const SizedBox(width: 10),
-                _buildNavigationButton('TIPP ANALYSE', Icons.analytics, _navigateToTipAnalysis),
+                _buildNavigationButton(l10n.tipAnalysis, Icons.analytics, _navigateToTipAnalysis),
                 const SizedBox(width: 10),
-                _buildNavigationButton('GEWINN-SIM', Icons.attach_money, _showWinningSimulation),
+                _buildNavigationButton(l10n.winSimulation, Icons.attach_money, _showWinningSimulation),
               ],
             ),
             
@@ -418,7 +480,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
 
             Card(
               elevation: 6,
-              color: Color(0xFF2D2D2D),
+              color: const Color(0xFF2D2D2D),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(color: Colors.grey[700]!, width: 1),
@@ -430,7 +492,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
                   children: [
                     Column(
                       children: [
-                        const Text('🎫 TIPPS', style: TextStyle(color: Colors.grey)),
+                        Text('🎫 ${l10n.tips}', style: const TextStyle(color: Colors.grey)),
                         Text(
                           '${_myTips.length}',
                           style: const TextStyle(
@@ -443,7 +505,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
                     ),
                     Column(
                       children: [
-                        const Text('💰 EINSATZ', style: TextStyle(color: Colors.grey)),
+                        Text('💰 ${l10n.cost}', style: const TextStyle(color: Colors.grey)),
                         Text(
                           '${_totalCost.toStringAsFixed(2)} €',
                           style: const TextStyle(
@@ -464,12 +526,12 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
             Row(
               children: [
                 Expanded(
-                  child: _buildCasinoButton('5 QUICK TIPPS', Icons.fast_forward, Color(0xFFFF8C00), 
+                  child: _buildCasinoButton('5 ${l10n.quickTips}', Icons.fast_forward, const Color(0xFFFF8C00), 
                       () => _generateMultipleTips(5)),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: _buildCasinoButton('10 MEGA TIPPS', Icons.flash_on, Color(0xFFDC143C), 
+                  child: _buildCasinoButton('10 ${l10n.megaTips}', Icons.flash_on, const Color(0xFFDC143C), 
                       () => _generateMultipleTips(10)),
                 ),
               ],
@@ -481,16 +543,16 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
               height: 2,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.transparent, Color(0xFFFFD700), Colors.transparent],
+                  colors: [Colors.transparent, const Color(0xFFFFD700), Colors.transparent],
                 ),
               ),
             ),
             
             const SizedBox(height: 15),
             
-            const Text(
-              '💎 MEINE GEWINNTIPPS 💎',
-              style: TextStyle(
+            Text(
+              '💎 ${l10n.myWinningTips} 💎',
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFFFFD700),
@@ -501,20 +563,20 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
             
             Expanded(
               child: _myTips.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.celebration_outlined, size: 60, color: Colors.grey),
-                          SizedBox(height: 15),
+                          const Icon(Icons.celebration_outlined, size: 60, color: Colors.grey),
+                          const SizedBox(height: 15),
                           Text(
-                            'Noch keine Tipps',
-                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                            l10n.noTipsYet,
+                            style: const TextStyle(fontSize: 18, color: Colors.grey),
                           ),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text(
-                            'Generiere deine Glückszahlen!',
-                            style: TextStyle(color: Colors.grey),
+                            l10n.generateLuckyNumbers,
+                            style: const TextStyle(color: Colors.grey),
                           ),
                         ],
                       ),
@@ -525,7 +587,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
                         final tip = _myTips[index];
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 6),
-                          color: Color(0xFF2D2D2D),
+                          color: const Color(0xFF2D2D2D),
                           elevation: 4,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -533,7 +595,7 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
                           ),
                           child: ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: Color(0xFFFFD700),
+                              backgroundColor: const Color(0xFFFFD700),
                               child: Text(
                                 '${index + 1}',
                                 style: const TextStyle(
