@@ -19,7 +19,7 @@ class SmartLottoApp extends StatefulWidget {
 
 class _SmartLottoAppState extends State<SmartLottoApp> {
   ThemeMode _mode = ThemeMode.system;
-  Locale _locale = const Locale('de'); // Standard: Deutsch
+  Locale _locale = const Locale('de');
 
   void _changeLanguage(Locale newLocale) {
     setState(() {
@@ -42,9 +42,9 @@ class _SmartLottoAppState extends State<SmartLottoApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('de'), // Deutsch
-        Locale('en'), // Englisch
-        Locale('tr'), // Türkisch
+        Locale('de'),
+        Locale('en'),
+        Locale('tr'),
       ],
       home: LottoHomeScreen(
         onThemeChanged: (mode) {
@@ -310,13 +310,45 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
     );
   }
 
-  void _showLanguageDialog() {
+  void _showSettingsDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2D2D2D),
         title: Text(
-          '🌍 ${AppLocalizations.of(context)!.selectTip}',
+          '⚙️ EINSTELLUNGEN',
+          style: const TextStyle(
+            color: Color(0xFFFFD700),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSettingsOption('🌍 Sprache wechseln', Icons.language, () {
+              Navigator.of(context).pop();
+              _showLanguageSelectionDialog();
+            }),
+            
+            const SizedBox(height: 12),
+            
+            _buildSettingsOption('🚪 App beenden', Icons.exit_to_app, () {
+              Navigator.of(context).pop();
+              _showExitConfirmationDialog();
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLanguageSelectionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2D2D2D),
+        title: Text(
+          '🌍 SPRACHE WÄHLEN',
           style: const TextStyle(
             color: Color(0xFFFFD700),
             fontWeight: FontWeight.bold,
@@ -330,6 +362,59 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
             _buildLanguageOption('🇹🇷 Türkçe', const Locale('tr')),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showExitConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2D2D2D),
+        title: const Text(
+          '🚪 APP BEENDEN',
+          style: TextStyle(
+            color: Color(0xFFFFD700),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: const Text(
+          'Möchtest du die App wirklich beenden?',
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'ABBRECHEN',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              SystemNavigator.pop();
+            },
+            child: const Text(
+              'BEENDEN',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsOption(String title, IconData icon, VoidCallback onTap) {
+    return Card(
+      color: const Color(0xFF3D3D3D),
+      child: ListTile(
+        leading: Icon(icon, color: const Color(0xFFFFD700)),
+        title: Text(
+          title,
+          style: const TextStyle(color: Colors.white),
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+        onTap: onTap,
       ),
     );
   }
@@ -379,9 +464,9 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
         shadowColor: Colors.black.withOpacity(0.8),
         actions: [
           IconButton(
-            icon: const Icon(Icons.language, color: Color(0xFFFFD700)),
-            onPressed: _showLanguageDialog,
-            tooltip: 'Change Language',
+            icon: const Icon(Icons.settings, color: Color(0xFFFFD700)),
+            onPressed: _showSettingsDialog,
+            tooltip: 'Einstellungen',
           ),
           if (_myTips.isNotEmpty) IconButton(
             icon: const Icon(Icons.analytics, color: Color(0xFFFFD700)),
@@ -465,7 +550,6 @@ class _LottoHomeScreenState extends State<LottoHomeScreen> {
             
             const SizedBox(height: 20),
 
-            // Navigation zu erweiterten Features
             Row(
               children: [
                 _buildNavigationButton(l10n.statistics, Icons.bar_chart, _navigateToStats),
