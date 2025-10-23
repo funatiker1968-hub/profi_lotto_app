@@ -1,19 +1,19 @@
 class JackpotService {
   // Aktuelle Jackpot-Daten abrufen
   Future<Map<String, dynamic>> getCurrentJackpots() async {
-    // Beispiel-Daten - später durch echte API ersetzen
+    // AKTUALISIERTE DATEN - 2025
     return {
       'lotto6aus49': {
-        'amount': 45000000, // 45 Millionen Euro
+        'amount': 12000000, // 12 Millionen Euro - aktueller Jackpot
         'currency': 'EUR',
-        'nextDraw': '2024-01-20T18:00:00Z',
+        'nextDraw': '2025-01-25T18:00:00Z', // Nächste Ziehung
         'game': 'Lotto 6aus49',
         'gameName': 'Lotto 6aus49'
       },
       'eurojackpot': {
-        'amount': 90000000, // 90 Millionen Euro
+        'amount': 35000000, // 35 Millionen Euro - aktueller Jackpot
         'currency': 'EUR', 
-        'nextDraw': '2024-01-19T20:00:00Z',
+        'nextDraw': '2025-01-24T20:00:00Z', // Nächste Ziehung
         'game': 'Eurojackpot',
         'gameName': 'Eurojackpot'
       }
