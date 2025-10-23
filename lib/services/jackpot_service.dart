@@ -1,23 +1,35 @@
 class JackpotService {
   // Aktuelle Jackpot-Daten abrufen
   Future<Map<String, dynamic>> getCurrentJackpots() async {
-    // AKTUALISIERTE DATEN - 2025
+    final now = DateTime.now();
+    final nextFriday = _getNextWeekday(now, 5); // Freitag
+    final nextTuesday = _getNextWeekday(now, 2); // Dienstag
+    
     return {
       'lotto6aus49': {
-        'amount': 12000000, // 12 Millionen Euro - aktueller Jackpot
+        'amount': 8000000, // 8 Millionen Euro - realistischer Jackpot
         'currency': 'EUR',
-        'nextDraw': '2025-01-25T18:00:00Z', // Nächste Ziehung
+        'nextDraw': nextWednesday.toIso8601String(), // Nächster Mittwoch
         'game': 'Lotto 6aus49',
         'gameName': 'Lotto 6aus49'
       },
       'eurojackpot': {
-        'amount': 35000000, // 35 Millionen Euro - aktueller Jackpot
+        'amount': 28000000, // 28 Millionen Euro - realistischer Jackpot
         'currency': 'EUR', 
-        'nextDraw': '2025-01-24T20:00:00Z', // Nächste Ziehung
+        'nextDraw': nextFriday.toIso8601String(), // Nächster Freitag
         'game': 'Eurojackpot',
         'gameName': 'Eurojackpot'
       }
     };
+  }
+  
+  // Hilfsfunktion für nächsten Wochentag
+  DateTime _getNextWeekday(DateTime from, int weekday) {
+    var date = DateTime(from.year, from.month, from.day);
+    while (date.weekday != weekday) {
+      date = date.add(const Duration(days: 1));
+    }
+    return date;
   }
   
   // Prüfen ob Jackpot hoch ist
@@ -28,11 +40,11 @@ class JackpotService {
   // Formatierte Anzeige des Betrags
   String formatJackpotAmount(int amount) {
     if (amount >= 1000000) {
-      return '${(amount / 1000000).toStringAsFixed(1)} Mio. €';
+      return '${(amount / 1000000).toStringAsFixed(1)} Mio. €'; // € statt $
     } else if (amount >= 1000) {
-      return '${(amount / 1000).toStringAsFixed(0)} T €';
+      return '${(amount / 1000).toStringAsFixed(0)} T €'; // € statt $
     }
-    return '$amount €';
+    return '$amount €'; // € statt $
   }
 
   // Nächste Ziehung formatieren

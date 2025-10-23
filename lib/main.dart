@@ -112,16 +112,22 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
     });
   }
 
+  // JACKPOT CARD - MIT DARK MODE SUPPORT
   Widget _buildJackpotCard(Map<String, dynamic> jackpot, String gameKey) {
     final game = jackpot[gameKey];
     if (game == null) return const SizedBox.shrink();
 
+    final isDarkMode = widget.appState.isDarkMode;
+    
     return Card(
-      color: Colors.amber[50],
+      color: isDarkMode ? Colors.grey[800] : Colors.amber[50], // Dunkler im Dark Mode
       elevation: 8,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: Colors.amber, width: 2),
+        side: BorderSide(
+          color: isDarkMode ? Colors.blueGrey : Colors.amber, 
+          width: 2
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -130,14 +136,14 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.attach_money, color: Colors.green[700], size: 24),
+                Icon(Icons.euro_symbol, color: Colors.green[700], size: 24), // € statt $
                 const SizedBox(width: 8),
                 Text(
                   game['gameName'] ?? gameKey,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: isDarkMode ? Colors.white : Colors.black87,
                   ),
                 ),
               ],
@@ -145,7 +151,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
             const SizedBox(height: 12),
             Text(
               _jackpotService.formatJackpotAmount(game['amount']),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.green,
@@ -154,9 +160,9 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
             const SizedBox(height: 8),
             Text(
               'Nächste Ziehung: ${_jackpotService.formatNextDraw(game['nextDraw'])}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: Colors.black54,
+                color: isDarkMode ? Colors.grey[400] : Colors.black54,
               ),
             ),
           ],
@@ -233,12 +239,12 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
             child: Column(
               children: [
                 if (_currentJackpots.isNotEmpty) ...[
-                  const Text(
+                  Text(
                     '🎰 AKTUELLE JACKPOTS 🎰',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -246,11 +252,13 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                   const SizedBox(height: 12),
                   _buildJackpotCard(_currentJackpots, 'eurojackpot'),
                   const SizedBox(height: 20),
-                  const Divider(height: 1, color: Colors.grey),
+                  Divider(height: 1, color: Colors.grey[600]),
                   const SizedBox(height: 20),
                 ],
                 
                 Card(
+                  color: Theme.of(context).cardTheme.color,
+                  elevation: Theme.of(context).cardTheme.elevation,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -294,6 +302,8 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                           itemBuilder: (context, index) {
                             final tip = _myTips[index];
                             return Card(
+                              color: Theme.of(context).cardTheme.color,
+                              elevation: Theme.of(context).cardTheme.elevation,
                               child: ListTile(
                                 title: Text(tip['numbers'].join(', ')),
                                 subtitle: Text(
