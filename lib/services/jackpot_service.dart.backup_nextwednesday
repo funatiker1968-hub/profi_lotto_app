@@ -4,8 +4,7 @@ class JackpotService {
     final now = DateTime.now();
     final nextFriday = _getNextWeekday(now, 5); // Freitag
     final nextTuesday = _getNextWeekday(now, 2); // Dienstag
-    final nextWednesday = _getNextWeekday(now, 3); // Mittwoch
-
+    
     return {
       'lotto6aus49': {
         'amount': 8000000, // 8 Millionen Euro - realistischer Jackpot
@@ -16,14 +15,14 @@ class JackpotService {
       },
       'eurojackpot': {
         'amount': 28000000, // 28 Millionen Euro - realistischer Jackpot
-        'currency': 'EUR',
+        'currency': 'EUR', 
         'nextDraw': nextFriday.toIso8601String(), // Nächster Freitag
         'game': 'Eurojackpot',
         'gameName': 'Eurojackpot'
       }
     };
   }
-
+  
   // Hilfsfunktion für nächsten Wochentag
   DateTime _getNextWeekday(DateTime from, int weekday) {
     var date = DateTime(from.year, from.month, from.day);
@@ -32,7 +31,7 @@ class JackpotService {
     }
     return date;
   }
-
+  
   // Prüfen ob Jackpot hoch ist
   bool isJackpotHigh(Map<String, dynamic> jackpot, int threshold) {
     return jackpot['amount'] >= threshold;
