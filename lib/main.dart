@@ -44,6 +44,10 @@ class _MyAppState extends State<MyApp> {
           backgroundColor: Colors.blueGrey,
           foregroundColor: Colors.white,
         ),
+        cardTheme: CardThemeData(
+          color: Colors.grey[800],
+          elevation: 4,
+        ),
         scaffoldBackgroundColor: Colors.grey[900],
       );
     } else {
@@ -52,6 +56,10 @@ class _MyAppState extends State<MyApp> {
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
+        ),
+        cardTheme: const CardThemeData(
+          color: Colors.white,
+          elevation: 4,
         ),
         scaffoldBackgroundColor: Colors.grey[50],
       );
@@ -112,7 +120,6 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
     });
   }
 
-  // JACKPOT CARD - MIT DARK MODE SUPPORT
   Widget _buildJackpotCard(Map<String, dynamic> jackpot, String gameKey) {
     final game = jackpot[gameKey];
     if (game == null) return const SizedBox.shrink();
@@ -182,6 +189,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
             backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
             actions: [
+              // JACKPOT NOTIFICATION BUTTON - NEU
               IconButton(
                 icon: const Icon(Icons.attach_money),
                 onPressed: () {
@@ -238,6 +246,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                // JACKPOT ANZEIGE - GROSS UND OBEN
                 if (_currentJackpots.isNotEmpty) ...[
                   Text(
                     '🎰 AKTUELLE JACKPOTS 🎰',
@@ -256,6 +265,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                   const SizedBox(height: 20),
                 ],
                 
+                // TIPP GENERATOR
                 Card(
                   color: Theme.of(context).cardTheme.color,
                   elevation: Theme.of(context).cardTheme.elevation,
