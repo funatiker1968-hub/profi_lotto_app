@@ -1,25 +1,21 @@
+# Codemagic YAML für Android Release Build
 workflows:
   android-release:
-    name: Lotto World Pro - Android Release
-    max_build_duration: 60
+    name: Android Release Build
     environment:
-      flutter: "3.22.0"
+      flutter: "3.13.9" # Stabile Version die CardThemeData unterstützt
       groups:
-        - android_signing
-      vars:
-        PACKAGE_NAME: "com.funatiker1968.profilotto"
+        - credentials
     scripts:
-      - name: 🔧 Clean project
+      - name: Get Flutter packages
         script: |
-          flutter clean
-          rm -rf build
-      - name: 📦 Get dependencies
-        script: flutter pub get
-      - name: 🧱 Build release APK
-        script: flutter build apk --release -t lib/main.dart
+          flutter pub get
+      - name: Build Android APK
+        script: |
+          flutter build apk --release --no-tree-shake-icons
     artifacts:
-      - build/app/outputs/flutter-apk/app-release.apk
+      - build/app/outputs/flutter-apk/**/*.apk
     publishing:
       email:
         recipients:
-          - funatiker1968@gmail.com
+          - your-email@example.com
