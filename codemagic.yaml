@@ -1,13 +1,13 @@
 workflows:
   android-release:
-    name: Smart Lotto Generator - Android Release
+    name: Lotto World Pro - Android Release
     max_build_duration: 60
     environment:
-      flutter: "3.22.0"  # 🔥 EXPLIZITE VERSION STATT "stable"
+      flutter: "3.22.0"
       groups:
-        - android_signing  # 🔥 SIGNING GRUPPE HINZUFÜGEN
+        - android_signing
       vars:
-        PACKAGE_NAME: "com.example.smart_lotto_generator_profi_cloud"
+        PACKAGE_NAME: "com.funatiker1968.profilotto"
     scripts:
       - name: 🔧 Clean project
         script: |
@@ -22,4 +22,4 @@ workflows:
     publishing:
       email:
         recipients:
-          - dein.email@beispiel.de
+          - funatiker1968@gmail.com
