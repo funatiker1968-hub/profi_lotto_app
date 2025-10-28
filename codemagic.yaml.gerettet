@@ -1,0 +1,25 @@
+workflows:
+  android-release:
+    name: Smart Lotto Generator - Android Release
+    max_build_duration: 60
+    environment:
+      flutter: "3.22.0"  # 🔥 EXPLIZITE VERSION STATT "stable"
+      groups:
+        - android_signing  # 🔥 SIGNING GRUPPE HINZUFÜGEN
+      vars:
+        PACKAGE_NAME: "com.example.smart_lotto_generator_profi_cloud"
+    scripts:
+      - name: 🔧 Clean project
+        script: |
+          flutter clean
+          rm -rf build
+      - name: 📦 Get dependencies
+        script: flutter pub get
+      - name: 🧱 Build release APK
+        script: flutter build apk --release -t lib/main.dart
+    artifacts:
+      - build/app/outputs/flutter-apk/app-release.apk
+    publishing:
+      email:
+        recipients:
+          - dein.email@beispiel.de
