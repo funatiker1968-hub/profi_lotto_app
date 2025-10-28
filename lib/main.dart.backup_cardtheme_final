@@ -41,6 +41,11 @@ class _MyAppState extends State<MyApp> {
       return ThemeData.dark().copyWith(
         primaryColor: Colors.blueGrey,
         appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.blueGrey,
+          foregroundColor: Colors.white,
+        ),
+        cardTheme: CardThemeData(
+          color: Colors.grey[800],
           elevation: 4,
         ),
         scaffoldBackgroundColor: Colors.grey[900],
@@ -49,6 +54,11 @@ class _MyAppState extends State<MyApp> {
       return ThemeData.light().copyWith(
         primaryColor: Colors.blue,
         appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+        ),
+        cardTheme: const CardThemeData(
+          color: Colors.white,
           elevation: 4,
         ),
         scaffoldBackgroundColor: Colors.grey[50],
