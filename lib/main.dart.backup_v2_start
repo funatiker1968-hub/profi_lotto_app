@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'components/disclimber_wrapper.dart';
 import 'services/app_state.dart';
 import 'services/jackpot_service.dart';
 import 'lotto_service.dart';
@@ -31,7 +30,7 @@ class _MyAppState extends State<MyApp> {
           theme: _buildTheme(false),
           darkTheme: _buildTheme(true),
           themeMode: _appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          home: DisclimberWrapper(child: LottoTipScreen(appState: _appState)),
+          home: LottoTipScreen(appState: _appState),
         );
       },
     );
