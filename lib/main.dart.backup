@@ -32,9 +32,7 @@ class _MyAppState extends State<MyApp> {
           theme: _buildTheme(false),
           darkTheme: _buildTheme(true),
           themeMode: _appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: ExitHandler(
-        child: DisclimberWrapper(child: LottoTipScreen(appState: _appState)),
-      ),
+          home: DisclimberWrapper(child: LottoTipScreen(appState: _appState)),
         );
       },
     );
@@ -390,57 +388,6 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
           ),
         );
       },
-    );
-  }
-}
-
-// Exit Handler für Back-Button mit Bestätigungsdialog
-class ExitHandler extends StatefulWidget {
-  final Widget child;
-  const ExitHandler({super.key, required this.child});
-  @override
-  _ExitHandlerState createState() => _ExitHandlerState();
-}
-
-class _ExitHandlerState extends State<ExitHandler> {
-  DateTime? _lastPressTime;
-  
-  Future<bool> _onWillPop() async {
-    final currentTime = DateTime.now();
-    final isDoublePress = _lastPressTime != null && 
-        currentTime.difference(_lastPressTime!) < Duration(seconds: 2);
-    if (isDoublePress) return true;
-    
-    _lastPressTime = currentTime;
-    final shouldExit = await _showExitDialog(context);
-    return shouldExit ?? false;
-  }
-  
-  Future<bool?> _showExitDialog(BuildContext context) async {
-    return await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('App verlassen?'),
-        content: Text('Möchten Sie die Lotto App wirklich verlassen?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Nein'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text('Ja'),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: widget.child,
     );
   }
 }

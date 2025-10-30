@@ -76,3 +76,14 @@
 - Alle Kern-Features sind stabil
 - Erweiterungen verbessern UX/UI
 
+
+Wed Oct 29 10:57:59 PM UTC 2025: FEATURE 2 ABGESCHLOSSEN - INFO-SCREEN IMPLEMENTIERT
+================================================================
+• ✅ InfoScreen mit Entwickler-Info: Yalçın Kaya
+• ✅ PayPal Spenden-Button (platzhalter)
+• ✅ Demo-Hinweise und Copyright
+• ✅ Navigation über Button im Haupt-Body
+• ✅ App bleibt build-fähig mit nur einer Warnung
+
+Nächstes Feature: Exit-Button mit Bestätigung
+
