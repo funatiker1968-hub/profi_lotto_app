@@ -1,73 +1,118 @@
 import 'package:flutter/material.dart';
-import 'disclimber_dialog.dart';
+import 'package:flutter/services.dart';
+import '../services/disclaimer_service.dart';
+import '../services/app_state.dart';
 
 class DisclimberWrapper extends StatefulWidget {
   final Widget child;
+  final AppState appState;
   
-  const DisclimberWrapper({super.key, required this.child});
-
+  const DisclimberWrapper({super.key, required this.child, required this.appState});
+  
   @override
-  State<DisclimberWrapper> createState() => _DisclimberWrapperState();
+  __DisclimberWrapperState createState() => __DisclimberWrapperState();
 }
 
-class _DisclimberWrapperState extends State<DisclimberWrapper> {
-  bool _accepted = false;
-  bool _showDialog = true;
+class __DisclimberWrapperState extends State<DisclimberWrapper> {
+  final DisclaimerService _disclaimerService = DisclaimerService();
+  bool _showDisclaimer = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _showDisclimber();
+    _checkDisclaimerStatus();
   }
 
-  Future<void> _showDisclimber() async {
-    await Future.delayed(Duration.zero);
-    if (!mounted) return;
-    
-    final accepted = await DisclimberDialog.show(context);
+  Future<void> _checkDisclaimerStatus() async {
+    final isAccepted = await _disclaimerService.isDisclaimerAccepted();
     setState(() {
-      _accepted = accepted;
-      _showDialog = false;
+      _showDisclaimer = !isAccepted;
+      _isLoading = false;
     });
+  }
+
+  Future<void> _acceptDisclaimer() async {
+    await _disclaimerService.setDisclaimerAccepted();
+    setState(() {
+      _showDisclaimer = false;
+    });
+  }
+
+  void _declineDisclaimer() {
+    // App schließen
+    SystemNavigator.pop();
+  }
+
+  Widget _buildDisclaimerDialog() {
+    final texts = DisclaimerService.getDisclaimerTexts(widget.appState.currentLanguage);
     
-    if (!accepted) {
-      // App einschränken - könnte hier navigieren oder Funktionen deaktivieren
-    }
+    return AlertDialog(
+      title: Text(
+        texts['title']!,
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              texts['content']!,
+              style: const TextStyle(fontSize: 14, height: 1.4),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              texts['accept']!,
+              style: TextStyle(
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _declineDisclaimer,
+          child: Text(
+            texts['decline']!,
+            style: const TextStyle(color: Colors.red),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: _acceptDisclaimer,
+          child: Text(texts['continue']!),
+        ),
+      ],
+      scrollable: true,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_showDialog) {
-      return Scaffold(
-        backgroundColor: Colors.grey[900],
+    if (_isLoading) {
+      return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
       );
     }
-    
-    return _accepted ? widget.child : _buildRestrictedView();
-  }
 
-  Widget _buildRestrictedView() {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Demo Version - Eingeschränkt'),
-        backgroundColor: Colors.orange,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.warning, size: 64, color: Colors.orange),
-            SizedBox(height: 20),
-            Text('App-Funktionen eingeschränkt',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
-            Text('Demo Version - Bitte akzeptieren Sie die Nutzungsbedingungen'),
-          ],
-        ),
-      ),
-    );
+    if (_showDisclaimer) {
+      return ValueListenableBuilder<bool>(
+        valueListenable: widget.appState,
+        builder: (context, _, child) {
+          return Scaffold(
+            backgroundColor: Colors.grey[900],
+            body: Center(
+              child: _buildDisclaimerDialog(),
+            ),
+          );
+        },
+      );
+    }
+
+    return widget.child;
   }
 }

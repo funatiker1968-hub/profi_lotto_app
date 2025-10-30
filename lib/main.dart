@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
           darkTheme: _buildTheme(true),
           themeMode: _appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: ExitHandler(
-        child: DisclimberWrapper(child: LottoTipScreen(appState: _appState)),
+        child: DisclimberWrapper(appState: _appState, child: LottoTipScreen(appState: _appState)),
       ),
         );
       },
@@ -399,10 +399,10 @@ class ExitHandler extends StatefulWidget {
   final Widget child;
   const ExitHandler({super.key, required this.child});
   @override
-  _ExitHandlerState createState() => _ExitHandlerState();
+  __ExitHandlerState createState() => __ExitHandlerState();
 }
 
-class _ExitHandlerState extends State<ExitHandler> {
+class __ExitHandlerState extends State<ExitHandler> {
   DateTime? _lastPressTime;
   
   Future<bool> _onWillPop() async {
