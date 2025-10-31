@@ -1,118 +1,86 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../services/disclaimer_service.dart';
-import '../services/app_state.dart';
+import '../models/lotto_system.dart';
+import 'system_selection_screen.dart';
+import 'lotto_tip_screen.dart';
 
 class DisclimberWrapper extends StatefulWidget {
-  final Widget child;
-  final AppState appState;
-  
-  const DisclimberWrapper({super.key, required this.child, required this.appState});
-  
+  const DisclimberWrapper({super.key});
+
   @override
-  __DisclimberWrapperState createState() => __DisclimberWrapperState();
+  State<DisclimberWrapper> createState() => _DisclimberWrapperState();
 }
 
-class __DisclimberWrapperState extends State<DisclimberWrapper> {
-  final DisclaimerService _disclaimerService = DisclaimerService();
-  bool _showDisclaimer = false;
-  bool _isLoading = true;
+class _DisclimberWrapperState extends State<DisclimberWrapper> {
+  bool _disclaimerAccepted = false;
+  LottoSystem? _selectedSystem;
 
-  @override
-  void initState() {
-    super.initState();
-    _checkDisclaimerStatus();
-  }
-
-  Future<void> _checkDisclaimerStatus() async {
-    final isAccepted = await _disclaimerService.isDisclaimerAccepted();
+  void _handleDisclaimerAccept() {
     setState(() {
-      _showDisclaimer = !isAccepted;
-      _isLoading = false;
+      _disclaimerAccepted = true;
     });
   }
 
-  Future<void> _acceptDisclaimer() async {
-    await _disclaimerService.setDisclaimerAccepted();
+  void _handleSystemSelected(LottoSystem system) {
     setState(() {
-      _showDisclaimer = false;
+      _selectedSystem = system;
     });
-  }
-
-  void _declineDisclaimer() {
-    // App schließen
-    SystemNavigator.pop();
-  }
-
-  Widget _buildDisclaimerDialog() {
-    final texts = DisclaimerService.getDisclaimerTexts(widget.appState.currentLanguage);
-    
-    return AlertDialog(
-      title: Text(
-        texts['title']!,
-        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-      ),
-      content: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              texts['content']!,
-              style: const TextStyle(fontSize: 14, height: 1.4),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              texts['accept']!,
-              style: TextStyle(
-                fontSize: 12,
-                fontStyle: FontStyle.italic,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: _declineDisclaimer,
-          child: Text(
-            texts['decline']!,
-            style: const TextStyle(color: Colors.red),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: _acceptDisclaimer,
-          child: Text(texts['continue']!),
-        ),
-      ],
-      scrollable: true,
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
+    if (!_disclaimerAccepted) {
+      return _buildDisclaimerScreen();
+    }
+
+    if (_selectedSystem == null) {
+      return SystemSelectionScreen(onSystemSelected: _handleSystemSelected);
+    }
+
+    return LottoTipScreen(selectedSystem: _selectedSystem!);
+  }
+
+  Widget _buildDisclaimerScreen() {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.warning_amber, size: 64, color: Colors.orange),
+              const SizedBox(height: 24),
+              const Text(
+                'Haftungsausschluss',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Diese App dient nur zu Unterhaltungszwecken. Glücksspiel kann süchtig machen.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {},
+                      child: const Text('Ablehnen'),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _handleDisclaimerAccept,
+                      child: const Text('Akzeptieren'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-      );
-    }
-
-    if (_showDisclaimer) {
-      return ValueListenableBuilder<bool>(
-        valueListenable: widget.appState,
-        builder: (context, _, child) {
-          return Scaffold(
-            backgroundColor: Colors.grey[900],
-            body: Center(
-              child: _buildDisclaimerDialog(),
-            ),
-          );
-        },
-      );
-    }
-
-    return widget.child;
+      ),
+    );
   }
 }

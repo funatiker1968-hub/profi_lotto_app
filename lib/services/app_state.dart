@@ -1,47 +1,20 @@
 import 'package:flutter/material.dart';
-import 'theme_service.dart';
 import 'language_service.dart';
 
-class AppState extends ChangeNotifier implements ValueNotifier<bool> {
-  final ThemeService _themeService = ThemeService();
-  final LanguageService _languageService = LanguageService();
-  
+class AppState extends ChangeNotifier {
   bool _isDarkMode = false;
   String _currentLanguage = 'de';
-
-  @override
-  bool get value => _isDarkMode;
-
-  @override
-  set value(bool newValue) {
-    if (_isDarkMode != newValue) {
-      _isDarkMode = newValue;
-      _themeService.setDarkMode(newValue);
-      notifyListeners();
-    }
-  }
+  final LanguageService _languageService = LanguageService();
 
   bool get isDarkMode => _isDarkMode;
   String get currentLanguage => _currentLanguage;
-  LanguageService get languageService => _languageService;
 
-  AppState() {
-    _loadSettings();
-  }
-
-  Future<void> _loadSettings() async {
-    _isDarkMode = await _themeService.isDarkMode();
-    _currentLanguage = await _languageService.getCurrentLanguage();
-    notifyListeners();
-  }
-
-  Future<void> toggleTheme() async {
+  void toggleTheme() {
     _isDarkMode = !_isDarkMode;
-    await _themeService.setDarkMode(_isDarkMode);
     notifyListeners();
   }
 
-  Future<void> switchLanguage() async {
+  void switchLanguage() {
     if (_currentLanguage == 'de') {
       _currentLanguage = 'en';
     } else if (_currentLanguage == 'en') {
@@ -49,7 +22,18 @@ class AppState extends ChangeNotifier implements ValueNotifier<bool> {
     } else {
       _currentLanguage = 'de';
     }
-    await _languageService.setLanguage(_currentLanguage);
+    notifyListeners();
+  }
+
+  void setLanguage(String languageCode) {
+    if (['de', 'en', 'tr'].contains(languageCode)) {
+      _currentLanguage = languageCode;
+      notifyListeners();
+    }
+  }
+
+  void setDarkMode(bool isDark) {
+    _isDarkMode = isDark;
     notifyListeners();
   }
 
@@ -72,6 +56,6 @@ class AppState extends ChangeNotifier implements ValueNotifier<bool> {
   }
 
   String translate(String key) {
-    return _languageService.translate(key, _currentLanguage);
+    return _languageService.getTranslation(key);
   }
 }

@@ -1,79 +1,85 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LanguageService {
-  static const String _languageKey = 'appLanguage';
-  
-  static const Map<String, Map<String, String>> _translations = {
+  final Map<String, Map<String, String>> _translations = {
     'de': {
       'appTitle': 'Lotto World Pro',
-      'generateTip': 'Tipp generieren',
+      'welcome': 'Willkommen',
+      'selectLottery': 'Lotto-System auswählen',
+      'selectLotteryDesc': 'Wähle eines der verfügbaren Lotto-Systeme aus',
+      'continueWith': 'Weiter mit',
+      'yourTip': 'Dein Tipp',
+      'newTip': 'Neuer Tipp',
       'saveTip': 'Tipp speichern',
-      'currentTip': 'Aktueller Tipp',
-      'noTip': 'Kein Tipp generiert',
       'savedTips': 'Gespeicherte Tipps',
-      'noSavedTips': 'Keine gespeicherten Tipps',
-      'deleteAll': 'Alle Tipps löschen',
-      'stats': 'Statistiken',
-      'analysis': 'Analyse',
-      'darkMode': 'Dark Mode',
-      'lightMode': 'Light Mode',
-      'created': 'Erstellt',
-      'currentLanguage': 'Aktuelle Sprache',
-      'hotNumbers': 'Heiße Zahlen',
-      'coldNumbers': 'Kalte Zahlen',
-      'numberStats': 'Zahlen Statistiken',
+      'noSavedTips': 'Noch keine Tipps gespeichert',
+      'extraNumbers': 'Zusatzzahlen',
+      'systemRules': 'Systemregeln',
+      'lotto6aus49': 'Lotto 6aus49',
+      'eurojackpot': 'Eurojackpot',
+      'sayisalLoto': 'Sayısal Loto',
+      'sansTopu': 'Şans Topu',
+      'disclaimerTitle': 'Haftungsausschluss',
+      'disclaimerText': 'Diese App dient nur zu Unterhaltungszwecken. Glücksspiel kann süchtig machen.',
+      'accept': 'Akzeptieren',
+      'decline': 'Ablehnen',
     },
     'en': {
       'appTitle': 'Lotto World Pro',
-      'generateTip': 'Generate Tip',
+      'welcome': 'Welcome',
+      'selectLottery': 'Select Lottery System',
+      'selectLotteryDesc': 'Choose one of the available lottery systems',
+      'continueWith': 'Continue with',
+      'yourTip': 'Your Tip',
+      'newTip': 'New Tip',
       'saveTip': 'Save Tip',
-      'currentTip': 'Current Tip',
-      'noTip': 'No tip generated',
       'savedTips': 'Saved Tips',
-      'noSavedTips': 'No saved tips',
-      'deleteAll': 'Delete All Tips',
-      'stats': 'Statistics',
-      'analysis': 'Analysis',
-      'darkMode': 'Dark Mode',
-      'lightMode': 'Light Mode',
-      'created': 'Created',
-      'currentLanguage': 'Current Language',
-      'hotNumbers': 'Hot Numbers',
-      'coldNumbers': 'Cold Numbers',
-      'numberStats': 'Number Statistics',
+      'noSavedTips': 'No tips saved yet',
+      'extraNumbers': 'Extra Numbers',
+      'systemRules': 'System Rules',
+      'lotto6aus49': 'Lotto 6aus49',
+      'eurojackpot': 'Eurojackpot',
+      'sayisalLoto': 'Sayısal Loto',
+      'sansTopu': 'Şans Topu',
+      'disclaimerTitle': 'Disclaimer',
+      'disclaimerText': 'This app is for entertainment purposes only. Gambling can be addictive.',
+      'accept': 'Accept',
+      'decline': 'Decline',
     },
     'tr': {
       'appTitle': 'Lotto World Pro',
-      'generateTip': 'Tahmin Oluştur',
+      'welcome': 'Hoş Geldiniz',
+      'selectLottery': 'Loto Sistemi Seçin',
+      'selectLotteryDesc': 'Mevcut loto sistemlerinden birini seçin',
+      'continueWith': 'İle devam et',
+      'yourTip': 'Tahmininiz',
+      'newTip': 'Yeni Tahmin',
       'saveTip': 'Tahmini Kaydet',
-      'currentTip': 'Mevcut Tahmin',
-      'noTip': 'Tahmin oluşturulmadı',
       'savedTips': 'Kayıtlı Tahminler',
-      'noSavedTips': 'Kayıtlı tahmin yok',
-      'deleteAll': 'Tüm Tahminleri Sil',
-      'stats': 'İstatistikler',
-      'analysis': 'Analiz',
-      'darkMode': 'Karanlık Mod',
-      'lightMode': 'Aydınlık Mod',
-      'created': 'Oluşturulma',
-      'currentLanguage': 'Geçerli Dil',
-      'hotNumbers': 'Sıcak Numaralar',
-      'coldNumbers': 'Soğuk Numaralar',
-      'numberStats': 'Numara İstatistikleri',
+      'noSavedTips': 'Henüz tahmin kaydedilmedi',
+      'extraNumbers': 'Ekstra Sayılar',
+      'systemRules': 'Sistem Kuralları',
+      'lotto6aus49': 'Lotto 6aus49',
+      'eurojackpot': 'Eurojackpot',
+      'sayisalLoto': 'Sayısal Loto',
+      'sansTopu': 'Şans Topu',
+      'disclaimerTitle': 'Feragatname',
+      'disclaimerText': 'Bu uygulama sadece eğlence amaçlıdır. Kumar bağımlılık yapabilir.',
+      'accept': 'Kabul Et',
+      'decline': 'Reddet',
     },
   };
 
-  Future<String> getCurrentLanguage() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_languageKey) ?? 'de';
+  String _currentLanguage = 'de';
+
+  String getTranslation(String key) {
+    return _translations[_currentLanguage]?[key] ?? key;
   }
 
-  Future<void> setLanguage(String languageCode) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_languageKey, languageCode);
+  void setLanguage(String languageCode) {
+    if (_translations.containsKey(languageCode)) {
+      _currentLanguage = languageCode;
+    }
   }
 
-  String translate(String key, String language) {
-    return _translations[language]?[key] ?? key;
-  }
+  String get currentLanguage => _currentLanguage;
 }

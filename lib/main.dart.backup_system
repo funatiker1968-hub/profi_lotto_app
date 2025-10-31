@@ -7,7 +7,6 @@ import 'stats_screen.dart';
 import 'tip_analysis_screen.dart';
 import 'jackpot_settings_screen.dart';
 import 'components/info_screen.dart';
-import 'services/lotto_system_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -64,9 +63,8 @@ class _MyAppState extends State<MyApp> {
 
 class LottoTipScreen extends StatefulWidget {
   final AppState appState;
-  final LottoSystem selectedSystem;
 
-  const LottoTipScreen({super.key, required this.appState, required this.selectedSystem});
+  const LottoTipScreen({super.key, required this.appState});
 
   @override
   State<LottoTipScreen> createState() => _LottoTipScreenState();
