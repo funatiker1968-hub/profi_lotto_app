@@ -4,15 +4,15 @@ workflows:
     environment:
       groups: []
       vars:
-        BUILD_NUMBER: 8
+        BUILD_NUMBER: 9
       flutter: "3.22.0"
     scripts:
       - name: Get dependencies
         script: flutter pub get
-      - name: Build Android APK
+      - name: Build Android Release APK
         script: flutter build apk --release --build-number=$BUILD_NUMBER
     artifacts:
-      - build/app/outputs/**/*.apk
+      - build/app/outputs/flutter-apk/app-release.apk
     publishing:
       email:
         recipients:
