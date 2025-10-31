@@ -1,0 +1,26 @@
+import 'package:flutter/material.dart';
+
+class AppState extends ChangeNotifier {
+  bool _isDarkMode = false;
+  String _currentLanguage = 'de';
+
+  bool get isDarkMode => _isDarkMode;
+  String get currentLanguage => _currentLanguage;
+
+  void toggleTheme() {
+    _isDarkMode = !_isDarkMode;
+    notifyListeners();
+  }
+
+  void setLanguage(String languageCode) {
+    if (['de', 'en', 'tr'].contains(languageCode)) {
+      _currentLanguage = languageCode;
+      notifyListeners();
+    }
+  }
+
+  void setDarkMode(bool isDark) {
+    _isDarkMode = isDark;
+    notifyListeners();
+  }
+}

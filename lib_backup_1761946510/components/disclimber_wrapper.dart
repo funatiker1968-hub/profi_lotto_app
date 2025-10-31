@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/lotto_system_service.dart';
+import '../models/lotto_system.dart';
 import 'system_selection_screen.dart';
 import 'lotto_tip_screen.dart';
 

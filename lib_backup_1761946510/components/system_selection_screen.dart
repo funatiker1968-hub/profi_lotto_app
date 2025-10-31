@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/language_service.dart';
-import '../services/lotto_system_service.dart';
+import '../models/lotto_system.dart';
 
 class SystemSelectionScreen extends StatefulWidget {
   final Function(LottoSystem) onSystemSelected;
@@ -17,10 +17,18 @@ class SystemSelectionScreen extends StatefulWidget {
 class _SystemSelectionScreenState extends State<SystemSelectionScreen> {
   final LanguageService _languageService = LanguageService();
 
+  String _getSystemName(String systemKey) {
+    final translations = {
+      'lotto6aus49': 'Lotto 6aus49',
+      'eurojackpot': 'Eurojackpot', 
+      'sayisalLoto': 'Sayısal Loto',
+      'sansTopu': 'Şans Topu',
+    };
+    return translations[systemKey] ?? systemKey;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final availableSystems = LottoSystemService.getAvailableSystems();
-    
     return Scaffold(
       appBar: AppBar(
         title: Text(_languageService.getTranslation('selectLottery')),
@@ -39,9 +47,9 @@ class _SystemSelectionScreenState extends State<SystemSelectionScreen> {
             const SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
-                itemCount: availableSystems.length,
+                itemCount: LottoSystem.availableSystems.length,
                 itemBuilder: (context, index) {
-                  final system = availableSystems[index];
+                  final system = LottoSystem.availableSystems[index];
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     child: ListTile(
@@ -49,22 +57,22 @@ class _SystemSelectionScreenState extends State<SystemSelectionScreen> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: system.primaryColor,
+                          color: Theme.of(context).colorScheme.primary,
                           shape: BoxShape.circle,
                         ),
                         child: Center(
                           child: Text(
                             (index + 1).toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
-                      title: Text(system.name),
+                      title: Text(_getSystemName(system.name)),
                       subtitle: Text(
-                        '${system.maxNumbers} aus ${system.numberRange}${system.hasBonusNumbers ? ' + ${system.bonusNumbersCount} aus ${system.bonusNumberRange}' : ''}\n${system.description}',
+                        '${system.mainNumbersCount} aus ${system.mainNumbersMax}${system.hasExtraNumbers ? ' + ${system.extraNumbersCount} aus ${system.extraNumbersMax}' : ''}',
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () => widget.onSystemSelected(system),
