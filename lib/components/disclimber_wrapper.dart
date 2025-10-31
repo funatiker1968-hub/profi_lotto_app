@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import '../services/lotto_system_service.dart';
 import '../services/language_service.dart';
 import '../services/theme_service.dart';
-import 'system_selection_screen.dart';
-import 'lotto_tip_screen.dart';
+import 'jackpot_overview_screen.dart';
 
 class DisclimberWrapper extends StatefulWidget {
   const DisclimberWrapper({super.key});
@@ -14,32 +12,12 @@ class DisclimberWrapper extends StatefulWidget {
 
 class _DisclimberWrapperState extends State<DisclimberWrapper> {
   bool _disclaimerAccepted = false;
-  LottoSystem? _selectedSystem;
   final LanguageService _languageService = LanguageService();
   final ThemeService _themeService = ThemeService();
 
   void _handleDisclaimerAccept() {
     setState(() {
       _disclaimerAccepted = true;
-    });
-  }
-
-  void _handleSystemSelected(LottoSystem system) {
-    setState(() {
-      _selectedSystem = system;
-    });
-  }
-
-  void _handleBackToSystemSelection() {
-    setState(() {
-      _selectedSystem = null;
-    });
-  }
-
-  void _handleBackToDisclaimer() {
-    setState(() {
-      _selectedSystem = null;
-      _disclaimerAccepted = false;
     });
   }
 
@@ -55,23 +33,39 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
     });
   }
 
+  void _showExitDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('App verlassen'),
+          content: const Text('Möchtest du die App wirklich verlassen?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Abbrechen'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Verlassen'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!_disclaimerAccepted) {
       return _buildDisclaimerScreen();
     }
 
-    if (_selectedSystem == null) {
-      return SystemSelectionScreen(
-        onSystemSelected: _handleSystemSelected,
-        onBack: _handleBackToDisclaimer,
-      );
-    }
-
-    return LottoTipScreen(
-      selectedSystem: _selectedSystem!,
-      onBack: _handleBackToSystemSelection,
-    );
+    // Nach Disclaimer direkt zum Hauptscreen mit Jackpot-Übersicht
+    return const JackpotOverviewScreen();
   }
 
   Widget _buildDisclaimerScreen() {
@@ -81,17 +75,20 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         actions: [
-          // Sprachumschaltung
           IconButton(
             icon: const Icon(Icons.language),
             onPressed: _switchLanguage,
             tooltip: 'Sprache wechseln (${_languageService.getCurrentLanguageName()})',
           ),
-          // Theme Umschaltung
           IconButton(
             icon: Icon(_themeService.isDarkMode ? Icons.light_mode : Icons.dark_mode),
             onPressed: _switchTheme,
             tooltip: _themeService.isDarkMode ? 'Hell Modus' : 'Dunkel Modus',
+          ),
+          IconButton(
+            icon: const Icon(Icons.exit_to_app),
+            onPressed: () => _showExitDialog(context),
+            tooltip: 'App verlassen',
           ),
         ],
       ),
@@ -118,9 +115,7 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
+                      onPressed: () => _showExitDialog(context),
                       child: Text(_languageService.getTranslation('decline')),
                     ),
                   ),

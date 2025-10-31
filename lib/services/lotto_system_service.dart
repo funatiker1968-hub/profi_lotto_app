@@ -5,12 +5,11 @@ class LottoSystem {
   final String id;
   final String name;
   final String description;
-  final int minNumbers;
-  final int maxNumbers;
-  final int numberRange;
+  final int mainNumbersCount;
+  final int mainNumbersMax;
   final bool hasBonusNumbers;
-  final int bonusNumberRange;
   final int bonusNumbersCount;
+  final int bonusNumbersMax;
   final String country;
   final String currency;
   final String schedule;
@@ -20,12 +19,11 @@ class LottoSystem {
     required this.id,
     required this.name,
     required this.description,
-    required this.minNumbers,
-    required this.maxNumbers,
-    required this.numberRange,
+    required this.mainNumbersCount,
+    required this.mainNumbersMax,
     this.hasBonusNumbers = false,
-    this.bonusNumberRange = 0,
     this.bonusNumbersCount = 0,
+    this.bonusNumbersMax = 0,
     required this.country,
     required this.currency,
     required this.schedule,
@@ -39,12 +37,11 @@ class LottoSystemService {
       id: 'lotto6aus49',
       name: 'Lotto 6aus49',
       description: 'Deutschlands klassisches Lotto',
-      minNumbers: 6,
-      maxNumbers: 6,
-      numberRange: 49,
+      mainNumbersCount: 6,
+      mainNumbersMax: 49,
       hasBonusNumbers: true,
-      bonusNumberRange: 10,
       bonusNumbersCount: 1,
+      bonusNumbersMax: 10,
       country: 'DE',
       currency: 'EUR',
       schedule: 'Mittwochs & Samstags',
@@ -54,12 +51,11 @@ class LottoSystemService {
       id: 'eurojackpot',
       name: 'Eurojackpot',
       description: 'Europäischer Jackpot',
-      minNumbers: 5,
-      maxNumbers: 5,
-      numberRange: 50,
+      mainNumbersCount: 5,
+      mainNumbersMax: 50,
       hasBonusNumbers: true,
-      bonusNumberRange: 12,
       bonusNumbersCount: 2,
+      bonusNumbersMax: 12,
       country: 'EU',
       currency: 'EUR',
       schedule: 'Freitags',
@@ -69,9 +65,8 @@ class LottoSystemService {
       id: 'sayisalloto',
       name: 'Sayısal Loto',
       description: 'Türkisches Zahlenlotto',
-      minNumbers: 6,
-      maxNumbers: 6,
-      numberRange: 49,
+      mainNumbersCount: 6,
+      mainNumbersMax: 49,
       hasBonusNumbers: false,
       country: 'TR',
       currency: 'TRY',
@@ -82,12 +77,11 @@ class LottoSystemService {
       id: 'sanstopu',
       name: 'Şans Topu',
       description: 'Türkisches Glücksball Lotto',
-      minNumbers: 5,
-      maxNumbers: 5,
-      numberRange: 34,
+      mainNumbersCount: 5,
+      mainNumbersMax: 34,
       hasBonusNumbers: true,
-      bonusNumberRange: 14,
       bonusNumbersCount: 1,
+      bonusNumbersMax: 14,
       country: 'TR',
       currency: 'TRY',
       schedule: 'Montags & Donnerstags',
@@ -106,32 +100,32 @@ class LottoSystemService {
   static List<int> generateNumbers(LottoSystem system) {
     final numbers = <int>[];
     final random = Random();
-    
-    while (numbers.length < system.maxNumbers) {
-      final number = random.nextInt(system.numberRange) + 1;
+
+    while (numbers.length < system.mainNumbersCount) {
+      final number = random.nextInt(system.mainNumbersMax) + 1;
       if (!numbers.contains(number)) {
         numbers.add(number);
       }
     }
     numbers.sort();
-    
+
     return numbers;
   }
 
   static List<int> generateBonusNumbers(LottoSystem system) {
     if (!system.hasBonusNumbers) return [];
-    
+
     final numbers = <int>[];
     final random = Random();
-    
+
     while (numbers.length < system.bonusNumbersCount) {
-      final number = random.nextInt(system.bonusNumberRange) + 1;
+      final number = random.nextInt(system.bonusNumbersMax) + 1;
       if (!numbers.contains(number)) {
         numbers.add(number);
       }
     }
     numbers.sort();
-    
+
     return numbers;
   }
 }

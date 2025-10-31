@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/language_service.dart';
 import '../services/lotto_system_service.dart';
+import '../services/jackpot_service.dart';
 
 class SystemSelectionScreen extends StatefulWidget {
   final Function(LottoSystem) onSystemSelected;
@@ -48,12 +49,18 @@ class _SystemSelectionScreenState extends State<SystemSelectionScreen> {
                 itemCount: availableSystems.length,
                 itemBuilder: (context, index) {
                   final system = availableSystems[index];
+                  final jackpotData = JackpotService.getJackpotData(system.id);
+                  final currentJackpot = jackpotData['currentJackpot'] ?? 'N/A';
+                  final nextDraw = jackpotData['nextDraw'] as DateTime;
+                  final countdown = JackpotService.getCountdown(nextDraw);
+                  
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
                       leading: Container(
-                        width: 40,
-                        height: 40,
+                        width: 50,
+                        height: 50,
                         decoration: BoxDecoration(
                           color: system.primaryColor,
                           shape: BoxShape.circle,
@@ -64,13 +71,61 @@ class _SystemSelectionScreenState extends State<SystemSelectionScreen> {
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
+                              fontSize: 18,
                             ),
                           ),
                         ),
                       ),
-                      title: Text(system.name),
-                      subtitle: Text(
-                        '${system.maxNumbers} aus ${system.numberRange}${system.hasBonusNumbers ? ' + ${system.bonusNumbersCount} aus ${system.bonusNumberRange}' : ''}\n${system.description}',
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            system.name,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Jackpot: $currentJackpot',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 8),
+                          Text(
+                            '${system.mainNumbersCount} aus ${system.mainNumbersMax}${system.hasBonusNumbers ? ' + ${system.bonusNumbersCount} aus ${system.bonusNumbersMax}' : ''}',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          Text(
+                            system.description,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Nächste Ziehung: $countdown',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.orange.shade800,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () => widget.onSystemSelected(system),

@@ -9,10 +9,10 @@ class LottoService {
   }
 
   List<int> generateTipForSystem(LottoSystem system) {
-    final mainNumbers = _generateNumbers(system.maxNumbers, system.numberRange);
+    final mainNumbers = _generateNumbers(system.mainNumbersCount, system.mainNumbersMax);
 
     if (system.hasBonusNumbers) {
-      final bonusNumbers = _generateNumbers(system.bonusNumbersCount, system.bonusNumberRange);
+      final bonusNumbers = _generateNumbers(system.bonusNumbersCount, system.bonusNumbersMax);
       return [...mainNumbers, ...bonusNumbers];
     }
 
