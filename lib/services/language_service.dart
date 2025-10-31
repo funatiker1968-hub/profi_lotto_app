@@ -1,4 +1,3 @@
-
 class LanguageService {
   final Map<String, Map<String, String>> _translations = {
     'de': {
@@ -82,4 +81,23 @@ class LanguageService {
   }
 
   String get currentLanguage => _currentLanguage;
+
+  // NEUE METHODE: Sprachwechsel durchzyklieren
+  void switchLanguage() {
+    final languages = ['de', 'en', 'tr'];
+    final currentIndex = languages.indexOf(_currentLanguage);
+    final nextIndex = (currentIndex + 1) % languages.length;
+    _currentLanguage = languages[nextIndex];
+  }
+
+  List<String> get availableLanguages => ['de', 'en', 'tr'];
+  
+  String getCurrentLanguageName() {
+    switch (_currentLanguage) {
+      case 'de': return 'Deutsch';
+      case 'en': return 'English';
+      case 'tr': return 'Türkçe';
+      default: return 'Deutsch';
+    }
+  }
 }

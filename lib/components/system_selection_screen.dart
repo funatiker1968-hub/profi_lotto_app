@@ -4,10 +4,12 @@ import '../services/lotto_system_service.dart';
 
 class SystemSelectionScreen extends StatefulWidget {
   final Function(LottoSystem) onSystemSelected;
+  final VoidCallback onBack;
 
   const SystemSelectionScreen({
     Key? key,
     required this.onSystemSelected,
+    required this.onBack,
   }) : super(key: key);
 
   @override
@@ -26,6 +28,10 @@ class _SystemSelectionScreenState extends State<SystemSelectionScreen> {
         title: Text(_languageService.getTranslation('selectLottery')),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: widget.onBack,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

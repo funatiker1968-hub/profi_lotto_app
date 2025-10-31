@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import '../services/lotto_service.dart';
 import '../services/lotto_system_service.dart';
 import '../services/storage_service.dart';
+import '../services/language_service.dart';
+import 'stats_screen.dart';
 
 class LottoTipScreen extends StatefulWidget {
   final LottoSystem selectedSystem;
+  final VoidCallback onBack;
 
   const LottoTipScreen({
     super.key,
     required this.selectedSystem,
+    required this.onBack,
   });
 
   @override
@@ -18,6 +22,7 @@ class LottoTipScreen extends StatefulWidget {
 class _LottoTipScreenState extends State<LottoTipScreen> {
   final LottoService _lottoService = LottoService();
   final StorageService _storageService = StorageService();
+  final LanguageService _languageService = LanguageService();
   List<int> _currentTip = [];
   List<int> _currentBonusNumbers = [];
   List<Map<String, dynamic>> _tipHistory = [];
@@ -131,10 +136,18 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
   String _formatTimestamp(String timestamp) {
     try {
       final date = DateTime.parse(timestamp);
-      return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+      return '${date.day}.${date.month}. ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
     } catch (e) {
       return timestamp;
     }
+  }
+
+  void _showStats() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const StatsScreen(),
+      ),
+    );
   }
 
   @override
@@ -144,6 +157,49 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
         title: Text(widget.selectedSystem.name),
         backgroundColor: widget.selectedSystem.primaryColor,
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: widget.onBack,
+        ),
+        actions: [
+          // Sprachumschaltung
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: () {
+              // Sprachwechsel Logik - bereits im LanguageService vorhanden
+              _languageService.switchLanguage();
+              setState(() {});
+            },
+          ),
+          // Statistik
+          IconButton(
+            icon: const Icon(Icons.analytics),
+            onPressed: _showStats,
+          ),
+          // Einstellungen
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              switch (value) {
+                case 'clear_history':
+                  _clearHistory();
+                  break;
+                case 'export_tips':
+                  // Export-Funktion würde hier kommen
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'clear_history',
+                child: Text('Historie löschen'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'export_tips',
+                child: Text('Tipps exportieren'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: _isLoading 
           ? const Center(child: CircularProgressIndicator())
@@ -155,24 +211,34 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // System Info
-                Text(
-                  widget.selectedSystem.name,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          widget.selectedSystem.name,
+                          style: Theme.of(context).textTheme.headlineMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.selectedSystem.description,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Ziehung: ${widget.selectedSystem.schedule}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  widget.selectedSystem.description,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Ziehung: ${widget.selectedSystem.schedule}',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
+
                 const SizedBox(height: 20),
-                
+
                 // Aktueller Tipp
                 Text(
                   'Dein Tipp:',
@@ -212,18 +278,26 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                       icon: const Icon(Icons.refresh),
                       label: const Text('Neuer Tipp'),
                     ),
-                    if (_tipHistory.isNotEmpty)
-                      ElevatedButton.icon(
-                        onPressed: _clearHistory,
-                        icon: const Icon(Icons.clear_all),
-                        label: const Text('Alle löschen'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
+                    ElevatedButton.icon(
+                      onPressed: _showStats,
+                      icon: const Icon(Icons.analytics),
+                      label: const Text('Statistik'),
+                    ),
                   ],
                 ),
+
+                if (_tipHistory.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: _clearHistory,
+                    icon: const Icon(Icons.clear_all),
+                    label: const Text('Alle Tipps löschen'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
                 
                 // Tipp Historie
                 if (_tipHistory.isNotEmpty) ...[
@@ -258,7 +332,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
+                          icon: const Icon(Icons.delete, color: Colors.red, size: 20),
                           onPressed: () => _deleteSingleTip(_tipHistory.length - 1 - index),
                         ),
                       ),

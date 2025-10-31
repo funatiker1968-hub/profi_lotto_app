@@ -26,6 +26,19 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
     });
   }
 
+  void _handleBackToSystemSelection() {
+    setState(() {
+      _selectedSystem = null;
+    });
+  }
+
+  void _handleBackToDisclaimer() {
+    setState(() {
+      _selectedSystem = null;
+      _disclaimerAccepted = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!_disclaimerAccepted) {
@@ -33,14 +46,25 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
     }
 
     if (_selectedSystem == null) {
-      return SystemSelectionScreen(onSystemSelected: _handleSystemSelected);
+      return SystemSelectionScreen(
+        onSystemSelected: _handleSystemSelected,
+        onBack: _handleBackToDisclaimer,
+      );
     }
 
-    return LottoTipScreen(selectedSystem: _selectedSystem!);
+    return LottoTipScreen(
+      selectedSystem: _selectedSystem!,
+      onBack: _handleBackToSystemSelection,
+    );
   }
 
   Widget _buildDisclaimerScreen() {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Lotto World Pro'),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -64,7 +88,10 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // App schließen bei Ablehnung
+                        Navigator.of(context).pop();
+                      },
                       child: const Text('Ablehnen'),
                     ),
                   ),
