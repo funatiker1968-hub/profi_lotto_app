@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/lotto_system_service.dart';
+import '../services/language_service.dart';
+import '../services/theme_service.dart';
 import 'system_selection_screen.dart';
 import 'lotto_tip_screen.dart';
 
@@ -13,6 +15,8 @@ class DisclimberWrapper extends StatefulWidget {
 class _DisclimberWrapperState extends State<DisclimberWrapper> {
   bool _disclaimerAccepted = false;
   LottoSystem? _selectedSystem;
+  final LanguageService _languageService = LanguageService();
+  final ThemeService _themeService = ThemeService();
 
   void _handleDisclaimerAccept() {
     setState(() {
@@ -39,6 +43,18 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
     });
   }
 
+  void _switchLanguage() {
+    setState(() {
+      _languageService.switchLanguage();
+    });
+  }
+
+  void _switchTheme() {
+    setState(() {
+      _themeService.switchTheme();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!_disclaimerAccepted) {
@@ -61,9 +77,23 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
   Widget _buildDisclaimerScreen() {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lotto World Pro'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+        title: Text(_languageService.getTranslation('appTitle')),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        actions: [
+          // Sprachumschaltung
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: _switchLanguage,
+            tooltip: 'Sprache wechseln (${_languageService.getCurrentLanguageName()})',
+          ),
+          // Theme Umschaltung
+          IconButton(
+            icon: Icon(_themeService.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: _switchTheme,
+            tooltip: _themeService.isDarkMode ? 'Hell Modus' : 'Dunkel Modus',
+          ),
+        ],
       ),
       body: Center(
         child: Padding(
@@ -73,15 +103,15 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
             children: [
               const Icon(Icons.warning_amber, size: 64, color: Colors.orange),
               const SizedBox(height: 24),
-              const Text(
-                'Haftungsausschluss',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Text(
+                _languageService.getTranslation('disclaimerTitle'),
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Diese App dient nur zu Unterhaltungszwecken. Glücksspiel kann süchtig machen.',
+              Text(
+                _languageService.getTranslation('disclaimerText'),
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 32),
               Row(
@@ -89,17 +119,16 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () {
-                        // App schließen bei Ablehnung
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Ablehnen'),
+                      child: Text(_languageService.getTranslation('decline')),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _handleDisclaimerAccept,
-                      child: const Text('Akzeptieren'),
+                      child: Text(_languageService.getTranslation('accept')),
                     ),
                   ),
                 ],
