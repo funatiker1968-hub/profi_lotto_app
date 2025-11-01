@@ -32,7 +32,7 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
   }
 
   void _switchTheme() {
-    _themeService.switchTheme();
+    _themeService.toggleTheme();
     setState(() {});
   }
 

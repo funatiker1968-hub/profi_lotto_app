@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import '../services/lotto_system_service.dart';
 import '../services/jackpot_service.dart';
 import '../services/language_service.dart';
@@ -15,26 +14,10 @@ class JackpotOverviewScreen extends StatefulWidget {
   State<JackpotOverviewScreen> createState() => _JackpotOverviewScreenState();
 }
 
-class _JackpotOverviewScreenState extends State<JackpotOverviewScreen> with TickerProviderStateMixin {
+class _JackpotOverviewScreenState extends State<JackpotOverviewScreen> {
   final LanguageService _languageService = LanguageService();
   final ThemeService _themeService = ThemeService();
   final List<LottoSystem> _systems = LottoSystemService.getAvailableSystems();
-  late AnimationController _timerController;
-
-  @override
-  void initState() {
-    super.initState();
-    _timerController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 1),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _timerController.dispose();
-    super.dispose();
-  }
 
   void _switchLanguage() {
     _languageService.switchLanguage();
@@ -60,32 +43,11 @@ class _JackpotOverviewScreenState extends State<JackpotOverviewScreen> with Tick
     return 'N/A';
   }
 
-  String _formatCountdown(DateTime nextDraw) {
-    final now = DateTime.now();
-    final difference = nextDraw.difference(now);
-    
-    if (difference.isNegative) {
-      return 'Läuft...';
-    }
-    
-    final days = difference.inDays;
-    final hours = difference.inHours.remainder(24);
-    final minutes = difference.inMinutes.remainder(60);
-    final seconds = difference.inSeconds.remainder(60);
-    
-    if (days > 0) {
-      return '${days}d ${hours}h ${minutes}m ${seconds}s';
-    } else if (hours > 0) {
-      return '${hours}h ${minutes}m ${seconds}s';
-    } else {
-      return '${minutes}m ${seconds}s';
-    }
-  }
-
   Widget _buildSystemCard(LottoSystem system) {
     final jackpotData = JackpotService.getJackpotData(system.id);
     final currentJackpot = jackpotData['currentJackpot'] ?? 'N/A';
     final nextDraw = jackpotData['nextDraw'] as DateTime;
+    final countdown = JackpotService.getCountdown(nextDraw);
     final lastDraws = List<Map<String, dynamic>>.from(jackpotData['lastDraws'] ?? []);
     final lastDraw = lastDraws.isNotEmpty ? lastDraws.first : null;
 
@@ -249,14 +211,6 @@ class _JackpotOverviewScreenState extends State<JackpotOverviewScreen> with Tick
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  if (lastDraw['date'] != null) 
-                    Text(
-                      "Ziehungsdatum: ${DateFormat('dd.MM.yyyy').format(lastDraw['date'] as DateTime)}",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 6,
@@ -336,18 +290,13 @@ class _JackpotOverviewScreenState extends State<JackpotOverviewScreen> with Tick
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        AnimatedBuilder(
-                          animation: _timerController,
-                          builder: (context, child) {
-                            return Text(
-                              _formatCountdown(nextDraw),
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange.shade700,
-                              ),
-                            );
-                          },
+                        Text(
+                          countdown,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange.shade700,
+                          ),
                         ),
                       ],
                     ),
@@ -394,18 +343,18 @@ class _JackpotOverviewScreenState extends State<JackpotOverviewScreen> with Tick
           ),
           IconButton(
             icon: Icon(_themeService.isDarkMode ? Icons.light_mode : Icons.dark_mode),
-            onPressed: _toggleTheme,
+            onPressed: _switchTheme,
             tooltip: 'Theme wechseln',
           ),
           IconButton(
             icon: const Icon(Icons.analytics),
             onPressed: _navigateToStats,
             tooltip: 'Statistik anzeigen',
-          ),
           IconButton(
             icon: const Icon(Icons.exit_to_app),
             onPressed: () => SystemNavigator.pop(),
-            tooltip: 'App verlassen',
+            tooltip: .App verlassen.,
+          ),
           ),
         ],
       ),
