@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/lotto_system_service.dart';
 import '../services/lotto_service.dart';
 import '../services/storage_service.dart';
+import '../services/language_service.dart';
 
 class LottoTipScreen extends StatefulWidget {
   final LottoSystem selectedSystem;
@@ -20,6 +21,7 @@ class LottoTipScreen extends StatefulWidget {
 class _LottoTipScreenState extends State<LottoTipScreen> {
   final LottoService _lottoService = LottoService();
   final StorageService _storageService = StorageService();
+  final LanguageService _languageService = LanguageService();
   Map<String, List<int>> _currentTip = {};
   List<Map<String, dynamic>> _tipHistory = [];
   bool _isLoading = true;
@@ -72,12 +74,12 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
 
   void _deleteSingleTip(int index) async {
     await _storageService.init();
-    
+
     // Finde den globalen Index für diesen Tipp
     final allTips = _storageService.getTips();
     int globalIndex = -1;
     int systemTipCount = 0;
-    
+
     for (int i = 0; i < allTips.length; i++) {
       if (allTips[i]['system'] == widget.selectedSystem.id) {
         if (systemTipCount == index) {
@@ -87,7 +89,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
         systemTipCount++;
       }
     }
-    
+
     if (globalIndex != -1) {
       await _storageService.deleteTip(globalIndex);
       _loadTips();
@@ -99,8 +101,8 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
       width: 50,
       height: 50,
       decoration: BoxDecoration(
-        color: isBonus 
-            ? Colors.orange.shade300 
+        color: isBonus
+            ? Colors.orange.shade400
             : widget.selectedSystem.primaryColor,
         shape: BoxShape.circle,
       ),
@@ -126,6 +128,16 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: () {
+              _languageService.switchLanguage();
+              setState(() {});
+            },
+            tooltip: 'Sprache wechseln',
+          ),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -150,19 +162,58 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // Hauptzahlen
-                          Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ..._currentTip['mainNumbers']!.map((number) => _buildNumberChip(number, isBonus: false)).toList(),
-                              ..._currentTip['bonusNumbers']!.map((number) => _buildNumberChip(number, isBonus: true)).toList(),
+                              const Text(
+                                'Hauptzahlen:',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: _currentTip['mainNumbers']!
+                                    .map((number) => _buildNumberChip(number, isBonus: false))
+                                    .toList(),
+                              ),
                             ],
                           ),
-                          
+
+                          // Bonus-Zahlen
+                          if (_currentTip['bonusNumbers']!.isNotEmpty) ...[
+                            const SizedBox(height: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _getBonusLabel(),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Wrap(
+                                  spacing: 10,
+                                  runSpacing: 10,
+                                  children: _currentTip['bonusNumbers']!
+                                      .map((number) => _buildNumberChip(number, isBonus: true))
+                                      .toList(),
+                                ),
+                              ],
+                            ),
+                          ],
+
                           const SizedBox(height: 40),
-                          
+
                           // Buttons
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -187,16 +238,16 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Tipp-Historie
-                  Text(
+                  const Text(
                     'Tipp-Historie:',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   if (_tipHistory.isEmpty)
                     const Text('Noch keine Tipps gespeichert.')
                   else
@@ -204,7 +255,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                       final index = entry.key;
                       final tip = entry.value;
                       final numbers = List<int>.from(tip['numbers'] ?? []);
-                      
+
                       return Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
@@ -235,7 +286,20 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
             ),
     );
   }
-  
+
+  String _getBonusLabel() {
+    switch (widget.selectedSystem.id) {
+      case 'lotto6aus49':
+        return 'Superzahl (0-9):';
+      case 'eurojackpot':
+        return 'Eurozahlen (2 aus 12):';
+      case 'sans_topu':
+        return 'Bonus-Zahl (1 aus 14):';
+      default:
+        return 'Bonus-Zahlen:';
+    }
+  }
+
   String _formatDate(dynamic timestamp) {
     if (timestamp == null) return 'Unbekannt';
     final date = DateTime.parse(timestamp.toString());
