@@ -1,4 +1,10 @@
-import 'package:flutter/foundation.dart';
+with open('lib/services/language_service.dart', 'r') as f:
+    content = f.read()
+
+# Prüfe ob LanguageService ein Singleton ist und NotifyListener hat
+if 'static final LanguageService _instance = LanguageService._internal();' not in content:
+    # Mache LanguageService zu einem Singleton mit ChangeNotifier
+    new_content = '''import 'package:flutter/foundation.dart';
 
 class LanguageService with ChangeNotifier {
   static final LanguageService _instance = LanguageService._internal();
@@ -46,4 +52,10 @@ class LanguageService with ChangeNotifier {
   String getTranslation(String key) {
     return _translations[_currentLanguage]?[key] ?? key;
   }
-}
+}'''
+    
+    with open('lib/services/language_service.dart', 'w') as f:
+        f.write(new_content)
+    print("✅ LanguageService als Singleton mit ChangeNotifier repariert")
+else:
+    print("ℹ️ LanguageService bereits korrekt implementiert")

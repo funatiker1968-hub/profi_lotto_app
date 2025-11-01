@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+complete_code = '''import 'package:flutter/material.dart';
 import '../services/lotto_system_service.dart';
 import '../services/lotto_service.dart';
 import '../services/storage_service.dart';
+import '../services/language_service.dart';
 
 class LottoTipScreen extends StatefulWidget {
   final LottoSystem selectedSystem;
@@ -20,6 +21,7 @@ class LottoTipScreen extends StatefulWidget {
 class _LottoTipScreenState extends State<LottoTipScreen> {
   final LottoService _lottoService = LottoService();
   final StorageService _storageService = StorageService();
+  final LanguageService _languageService = LanguageService();
   Map<String, List<int>> _currentTip = {};
   List<Map<String, dynamic>> _tipHistory = [];
   bool _isLoading = true;
@@ -242,3 +244,9 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
     return '${date.day}.${date.month}.${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
 }
+'''
+
+with open('lib/components/lotto_tip_screen.dart', 'w') as f:
+    f.write(complete_code)
+
+print("✅ Vollständige, korrekte LottoTipScreen Version erstellt")

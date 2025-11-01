@@ -56,6 +56,14 @@ class StorageService {
   List<Map<String, dynamic>> getTipsBySystem(String systemId) {
     return getTips().where((tip) => tip['system'] == systemId).toList();
   }
+  
+  Future<void> clearTipsBySystem(String systemId) async {
+    await init();
+    final allTips = _getAllTips();
+    final filteredTips = allTips.where((tip) => tip['system'] != systemId).toList();
+    await _storage.setStringList('lotto_tips', 
+        filteredTips.map((tip) => jsonEncode(tip)).toList());
+  }
 
   // Bestimmten Tipp löschen
   Future<void> deleteTip(int index) async {

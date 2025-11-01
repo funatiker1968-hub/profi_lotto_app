@@ -1,0 +1,11 @@
+            ),
+          ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_selectedSystem != null) {
+      return LottoTipScreen(
+        selectedSystem: _selectedSystem!,

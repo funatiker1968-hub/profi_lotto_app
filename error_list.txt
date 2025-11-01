@@ -1,0 +1,30 @@
+warning • The declaration '_handleSystemSelected' isn't referenced • lib/components/jackpot_overview_screen.dart:22:8 • unused_element
+  error • Expected to find ')' • lib/components/jackpot_overview_screen.dart:33:3 • expected_token
+warning • The value of the local variable 'countdown' isn't used • lib/components/jackpot_overview_screen.dart:55:11 • unused_local_variable
+warning • The value of the local variable 'lastDraw' isn't used • lib/components/jackpot_overview_screen.dart:57:11 • unused_local_variable
+  error • Expected to find ')' • lib/components/jackpot_overview_screen.dart:200:19 • expected_token
+  error • Expected to find ')' • lib/components/jackpot_overview_screen.dart:201:17 • expected_token
+  error • Expected an identifier • lib/components/jackpot_overview_screen.dart:208:13 • missing_identifier
+  error • Expected to find ')' • lib/components/jackpot_overview_screen.dart:208:13 • expected_token
+  error • Expected to find ';' • lib/components/jackpot_overview_screen.dart:342:7 • expected_token
+warning • Dead code • lib/components/jackpot_overview_screen.dart:342:8 • dead_code
+  error • Expected an identifier • lib/components/jackpot_overview_screen.dart:342:8 • missing_identifier
+  error • Expected to find ';' • lib/components/jackpot_overview_screen.dart:342:8 • expected_token
+  error • Unexpected text ';' • lib/components/jackpot_overview_screen.dart:342:8 • unexpected_token
+  error • Expected an identifier • lib/components/jackpot_overview_screen.dart:343:5 • missing_identifier
+  error • Unexpected text ';' • lib/components/jackpot_overview_screen.dart:343:5 • unexpected_token
+  error • Undefined name '_switchLanguage' • lib/components/jackpot_overview_screen.dart:363:24 • undefined_identifier
+  error • Expected an identifier • lib/components/jackpot_overview_screen.dart:364:22 • missing_identifier
+  error • Expected to find ',' • lib/components/jackpot_overview_screen.dart:364:23 • expected_token
+  error • Too many positional arguments: 0 expected, but 1 found • lib/components/jackpot_overview_screen.dart:364:23 • extra_positional_arguments_could_be_named
+  error • Unterminated string literal • lib/components/jackpot_overview_screen.dart:364:42 • unterminated_string_literal
+  error • Undefined name '_switchTheme' • lib/components/jackpot_overview_screen.dart:368:24 • undefined_identifier
+  error • Expected an identifier • lib/components/jackpot_overview_screen.dart:369:22 • missing_identifier
+  error • Expected to find ',' • lib/components/jackpot_overview_screen.dart:369:23 • expected_token
+  error • Too many positional arguments: 0 expected, but 1 found • lib/components/jackpot_overview_screen.dart:369:23 • extra_positional_arguments_could_be_named
+  error • Unterminated string literal • lib/components/jackpot_overview_screen.dart:369:40 • unterminated_string_literal
+  error • Undefined name '_navigateToStats' • lib/components/jackpot_overview_screen.dart:373:24 • undefined_identifier
+  error • Expected an identifier • lib/components/jackpot_overview_screen.dart:374:22 • missing_identifier
+  error • Expected to find ',' • lib/components/jackpot_overview_screen.dart:374:23 • expected_token
+  error • Too many positional arguments: 0 expected, but 1 found • lib/components/jackpot_overview_screen.dart:374:23 • extra_positional_arguments_could_be_named
+  error • Unterminated string literal • lib/components/jackpot_overview_screen.dart:374:44 • unterminated_string_literal

@@ -47,8 +47,9 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
             ),
             TextButton(
               onPressed: () {
+                // App komplett schließen
                 Navigator.of(context).pop();
-                Navigator.of(context).pop();
+                _exitApp();
               },
               child: const Text('Verlassen'),
             ),
@@ -56,6 +57,15 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
         );
       },
     );
+  }
+
+  void _exitApp() {
+    // App beenden
+    Future.delayed(Duration.zero, () {
+      // Für Android/iOS App schließen
+      // ignore: invalid_use_of_visible_for_testing_member
+       SystemNavigator.pop();  Alternative für einige Plattformen
+    });
   }
 
   @override
