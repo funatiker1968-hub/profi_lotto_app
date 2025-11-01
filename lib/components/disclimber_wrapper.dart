@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../services/language_service.dart';
 import '../services/theme_service.dart';
 import 'jackpot_overview_screen.dart';
@@ -11,130 +12,114 @@ class DisclimberWrapper extends StatefulWidget {
 }
 
 class _DisclimberWrapperState extends State<DisclimberWrapper> {
-  bool _disclaimerAccepted = false;
   final LanguageService _languageService = LanguageService();
   final ThemeService _themeService = ThemeService();
+  bool _disclaimerAccepted = false;
 
-  void _handleDisclaimerAccept() {
+  void _acceptDisclaimer() {
     setState(() {
       _disclaimerAccepted = true;
     });
   }
 
+  void _declineDisclaimer() {
+    SystemNavigator.pop(); // App beenden
+  }
+
   void _switchLanguage() {
-    setState(() {
-      _languageService.switchLanguage();
-    });
+    _languageService.switchLanguage();
+    setState(() {});
   }
 
   void _switchTheme() {
-    setState(() {
-      _themeService.switchTheme();
-    });
-  }
-
-  void _showExitDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('App verlassen'),
-          content: const Text('Möchtest du die App wirklich verlassen?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Abbrechen'),
-            ),
-            TextButton(
-              onPressed: () {
-                // App komplett schließen
-                Navigator.of(context).pop();
-                _exitApp();
-              },
-              child: const Text('Verlassen'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _exitApp() {
-    // App beenden
-    Future.delayed(Duration.zero, () {
-      // Für Android/iOS App schließen
-      // ignore: invalid_use_of_visible_for_testing_member
-       SystemNavigator.pop();  Alternative für einige Plattformen
-    });
+    _themeService.switchTheme();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_disclaimerAccepted) {
-      return _buildDisclaimerScreen();
+    if (_disclaimerAccepted) {
+      return const JackpotOverviewScreen();
     }
 
-    // Nach Disclaimer direkt zum Hauptscreen mit Jackpot-Übersicht
-    return const JackpotOverviewScreen();
-  }
-
-  Widget _buildDisclaimerScreen() {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_languageService.getTranslation('appTitle')),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.language),
-            onPressed: _switchLanguage,
-            tooltip: 'Sprache wechseln (${_languageService.getCurrentLanguageName()})',
-          ),
-          IconButton(
-            icon: Icon(_themeService.isDarkMode ? Icons.light_mode : Icons.dark_mode),
-            onPressed: _switchTheme,
-            tooltip: _themeService.isDarkMode ? 'Hell Modus' : 'Dunkel Modus',
-          ),
-          IconButton(
-            icon: const Icon(Icons.exit_to_app),
-            onPressed: () => _showExitDialog(context),
-            tooltip: 'App verlassen',
-          ),
-        ],
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
+    return MaterialApp(
+      theme: _themeService.isDarkMode ? ThemeData.dark() : ThemeData.light(),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text(_languageService.getTranslation('disclaimerTitle')),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.language),
+              onPressed: _switchLanguage,
+              tooltip: 'Sprache wechseln',
+            ),
+            IconButton(
+              icon: Icon(_themeService.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+              onPressed: _switchTheme,
+              tooltip: 'Theme wechseln',
+            ),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.warning_amber, size: 64, color: Colors.orange),
-              const SizedBox(height: 24),
+              const Icon(
+                Icons.warning_amber,
+                size: 64,
+                color: Colors.orange,
+              ),
+              const SizedBox(height: 20),
               Text(
                 _languageService.getTranslation('disclaimerTitle'),
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                _languageService.getTranslation('disclaimerText'),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16),
               ),
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => _showExitDialog(context),
-                      child: Text(_languageService.getTranslation('decline')),
+              const SizedBox(height: 20),
+              Card(
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Diese App dient ausschließlich Unterhaltungszwecken. '
+                    'Lotto-Spiele basieren auf Glück und es gibt keine Garantie für Gewinne. '
+                    'Spiele verantwortungsbewusst und nur mit Geld, das du dir leisten kannst zu verlieren. '
+                    'Der Entwickler übernimmt keine Haftung für finanzielle Verluste.',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey.shade700,
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _handleDisclaimerAccept,
-                      child: Text(_languageService.getTranslation('accept')),
+                ),
+              ),
+              const SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: _declineDisclaimer,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                     ),
+                    child: Text(_languageService.getTranslation('decline')),
+                  ),
+                  ElevatedButton(
+                    onPressed: _acceptDisclaimer,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    ),
+                    child: Text(_languageService.getTranslation('accept')),
                   ),
                 ],
               ),
