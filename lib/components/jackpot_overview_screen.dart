@@ -28,22 +28,30 @@ class _JackpotOverviewScreenState extends State<JackpotOverviewScreen> with Tick
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat();
+    
+    // Listener für Sprach- und Theme-Änderungen
+    _languageService.addListener(_onUpdate);
+    _themeService.addListener(_onUpdate);
   }
 
   @override
   void dispose() {
     _timerController.dispose();
+    _languageService.removeListener(_onUpdate);
+    _themeService.removeListener(_onUpdate);
     super.dispose();
+  }
+
+  void _onUpdate() {
+    setState(() {});
   }
 
   void _switchLanguage() {
     _languageService.switchLanguage();
-    setState(() {});
   }
 
   void _toggleTheme() {
     _themeService.toggleTheme();
-    setState(() {});
   }
 
   void _navigateToStats() {
@@ -197,7 +205,7 @@ class _JackpotOverviewScreenState extends State<JackpotOverviewScreen> with Tick
                     Column(
                       children: [
                         Text(
-                          'Bonus',
+                          _getBonusLabel(system),
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
@@ -258,6 +266,8 @@ class _JackpotOverviewScreenState extends State<JackpotOverviewScreen> with Tick
                       ),
                     ),
                   const SizedBox(height: 8),
+                  
+                  // Hauptzahlen
                   Wrap(
                     spacing: 6,
                     runSpacing: 6,
@@ -282,30 +292,46 @@ class _JackpotOverviewScreenState extends State<JackpotOverviewScreen> with Tick
                       );
                     }).toList(),
                   ),
-                  if (lastDraw['bonusNumbers'] != null) ...[
+
+                  // Bonus-Zahlen - IMMER anzeigen wenn vorhanden
+                  if (lastDraw['bonusNumbers'] != null && (lastDraw['bonusNumbers'] as List).isNotEmpty) ...[
                     const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 6,
-                      children: (lastDraw['bonusNumbers'] as List<int>).map((number) {
-                        return Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: Colors.orange.shade400,
-                            shape: BoxShape.circle,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _getBonusDrawLabel(system),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade600,
                           ),
-                          child: Center(
-                            child: Text(
-                              number.toString(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                        ),
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 6,
+                          children: (lastDraw['bonusNumbers'] as List<int>).map((number) {
+                            return Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: Colors.orange.shade400,
+                                shape: BoxShape.circle,
                               ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                              child: Center(
+                                child: Text(
+                                  number.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
                     ),
                   ],
                 ],
@@ -377,6 +403,32 @@ class _JackpotOverviewScreenState extends State<JackpotOverviewScreen> with Tick
         ),
       ),
     );
+  }
+
+  String _getBonusLabel(LottoSystem system) {
+    switch (system.id) {
+      case 'lotto6aus49':
+        return 'Superzahl';
+      case 'eurojackpot':
+        return 'Eurozahlen';
+      case 'sans_topu':
+        return 'Bonus-Zahl';
+      default:
+        return 'Bonus';
+    }
+  }
+
+  String _getBonusDrawLabel(LottoSystem system) {
+    switch (system.id) {
+      case 'lotto6aus49':
+        return 'Superzahl:';
+      case 'eurojackpot':
+        return 'Eurozahlen:';
+      case 'sans_topu':
+        return 'Bonus-Zahl:';
+      default:
+        return 'Bonus-Zahlen:';
+    }
   }
 
   @override

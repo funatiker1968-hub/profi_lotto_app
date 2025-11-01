@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/lotto_system_service.dart';
 import '../services/historical_data_service.dart';
+import '../services/language_service.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -11,8 +12,25 @@ class StatsScreen extends StatefulWidget {
 
 class _StatsScreenState extends State<StatsScreen> {
   final List<LottoSystem> _systems = LottoSystemService.getAvailableSystems();
+  final LanguageService _languageService = LanguageService();
   LottoSystem _selectedSystem = LottoSystemService.getAvailableSystems().first;
-  
+
+  @override
+  void initState() {
+    super.initState();
+    _languageService.addListener(_onLanguageChanged);
+  }
+
+  @override
+  void dispose() {
+    _languageService.removeListener(_onLanguageChanged);
+    super.dispose();
+  }
+
+  void _onLanguageChanged() {
+    setState(() {});
+  }
+
   Map<String, dynamic> get _currentStats {
     return HistoricalDataService.analyzeHistoricalData(_selectedSystem.id);
   }
@@ -34,9 +52,18 @@ class _StatsScreenState extends State<StatsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Statistik & Analyse'),
+        title: Text(_languageService.getTranslation('statistics')),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: () {
+              _languageService.switchLanguage();
+            },
+            tooltip: 'Sprache wechseln',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -50,9 +77,9 @@ class _StatsScreenState extends State<StatsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Lotto System',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    Text(
+                      _languageService.getTranslation('lottoSystem'),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     DropdownButton<LottoSystem>(
@@ -87,9 +114,9 @@ class _StatsScreenState extends State<StatsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '📊 Analyse-Zeitraum',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    Text(
+                      _languageService.getTranslation('analysisPeriod'),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -97,7 +124,7 @@ class _StatsScreenState extends State<StatsScreen> {
                         const Icon(Icons.calendar_today, size: 16, color: Colors.blue),
                         const SizedBox(width: 8),
                         Text(
-                          'Zeitraum: ${dateRange['from'] ?? 'N/A'} - ${dateRange['to'] ?? 'N/A'}',
+                          '${_languageService.getTranslation('timePeriod')}: ${dateRange['from']} - ${dateRange['to']}',
                           style: const TextStyle(fontSize: 14),
                         ),
                       ],
@@ -108,7 +135,7 @@ class _StatsScreenState extends State<StatsScreen> {
                         const Icon(Icons.analytics, size: 16, color: Colors.blue),
                         const SizedBox(width: 8),
                         Text(
-                          'Periode: $analysisPeriod',
+                          '${_languageService.getTranslation('period')}: $analysisPeriod',
                           style: const TextStyle(fontSize: 14),
                         ),
                       ],
@@ -119,7 +146,7 @@ class _StatsScreenState extends State<StatsScreen> {
                         const Icon(Icons.list, size: 16, color: Colors.blue),
                         const SizedBox(width: 8),
                         Text(
-                          'Auswertung: $totalDraws Ziehungen analysiert',
+                          '${_languageService.getTranslation('analysis')}: $totalDraws ${_languageService.getTranslation('drawsAnalyzed')}',
                           style: const TextStyle(fontSize: 14),
                         ),
                       ],
@@ -138,22 +165,22 @@ class _StatsScreenState extends State<StatsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Statistik Übersicht',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    Text(
+                      _languageService.getTranslation('statisticsOverview'),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStatItem('Analysierte\nZiehungen', totalDraws.toString()),
-                        _buildStatItem('Durchschnittliche\nHäufigkeit', averageFrequency),
-                        _buildStatItem('Zeitraum', '10 Jahre'),
+                        _buildStatItem(_languageService.getTranslation('analyzedDraws'), totalDraws.toString()),
+                        _buildStatItem(_languageService.getTranslation('averageFrequency'), averageFrequency),
+                        _buildStatItem(_languageService.getTranslation('timePeriod'), '10 ${_languageService.getTranslation('years')}'),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Basierend auf historischen Daten von ${dateRange['from'] ?? 'N/A'} bis ${dateRange['to'] ?? 'N/A'}',
+                      '${_languageService.getTranslation('basedOnHistorical')} ${dateRange['from']} ${_languageService.getTranslation('until')} ${dateRange['to']}',
                       style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
                       textAlign: TextAlign.center,
                     ),
@@ -171,13 +198,13 @@ class _StatsScreenState extends State<StatsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '🔥 Heiße Zahlen',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                    Text(
+                      _languageService.getTranslation('hotNumbers'),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Am häufigsten gezogen (basierend auf $totalDraws Ziehungen)',
+                      '${_languageService.getTranslation('mostFrequentlyDrawn')} (${_languageService.getTranslation('basedOn')} $totalDraws ${_languageService.getTranslation('draws')})',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 12),
@@ -188,7 +215,7 @@ class _StatsScreenState extends State<StatsScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Diese Zahlen wurden im analysierten Zeitraum am häufigsten gezogen',
+                      _languageService.getTranslation('hotNumbersDescription'),
                       style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                     ),
                   ],
@@ -205,13 +232,13 @@ class _StatsScreenState extends State<StatsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '❄️ Kalte Zahlen',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+                    Text(
+                      _languageService.getTranslation('coldNumbers'),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Am seltensten gezogen (basierend auf $totalDraws Ziehungen)',
+                      '${_languageService.getTranslation('leastFrequentlyDrawn')} (${_languageService.getTranslation('basedOn')} $totalDraws ${_languageService.getTranslation('draws')})',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 12),
@@ -222,7 +249,7 @@ class _StatsScreenState extends State<StatsScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Diese Zahlen wurden im analysierten Zeitraum am seltensten gezogen',
+                      _languageService.getTranslation('coldNumbersDescription'),
                       style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                     ),
                   ],
@@ -230,146 +257,20 @@ class _StatsScreenState extends State<StatsScreen> {
               ),
             ),
 
-            // Trend Analyse
-            if (trends['risingTrends'] != null && (trends['risingTrends'] as List).isNotEmpty) ...[
-              const SizedBox(height: 20),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        '📈 Aktuelle Trends',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        trends['analysisPeriod'] ?? 'Trendanalyse',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 12),
-                      
-                      if ((trends['risingTrends'] as List).isNotEmpty) ...[
-                        Row(
-                          children: [
-                            const Icon(Icons.trending_up, color: Colors.green, size: 20),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Aufsteigend:',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(width: 8),
-                            Wrap(
-                              spacing: 6,
-                              children: (trends['risingTrends'] as List<int>).map((number) => 
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.shade100,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    number.toString(),
-                                    style: TextStyle(
-                                      color: Colors.green.shade800,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                )
-                              ).toList(),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                      
-                      if ((trends['fallingTrends'] as List).isNotEmpty) ...[
-                        Row(
-                          children: [
-                            const Icon(Icons.trending_down, color: Colors.red, size: 20),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Absteigend:',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(width: 8),
-                            Wrap(
-                              spacing: 6,
-                              children: (trends['fallingTrends'] as List<int>).map((number) => 
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red.shade100,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    number.toString(),
-                                    style: TextStyle(
-                                      color: Colors.red.shade800,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                )
-                              ).toList(),
-                            ),
-                          ],
-                        ),
-                      ],
-                      
-                      if ((trends['risingTrends'] as List).isEmpty && (trends['fallingTrends'] as List).isEmpty) ...[
-                        const Text(
-                          'Keine signifikanten Trends in den letzten Jahren festgestellt',
-                          style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ],
-
-            const SizedBox(height: 20),
-
-            // Gewinnchance
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '🎰 Mathematische Gewinnchancen',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildProbabilityItem('6 Richtige', '1 : 139.838.160'),
-                    _buildProbabilityItem('5 Richtige + ZZ', '1 : 542.008'),
-                    _buildProbabilityItem('5 Richtige', '1 : 60.223'),
-                    _buildProbabilityItem('4 Richtige + ZZ', '1 : 10.324'),
-                    _buildProbabilityItem('4 Richtige', '1 : 1.147'),
-                    _buildProbabilityItem('3 Richtige + ZZ', '1 : 567'),
-                    _buildProbabilityItem('3 Richtige', '1 : 63'),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
 
             // Info
             Card(
               color: Colors.blue.shade50,
-              child: const Padding(
-                padding: EdgeInsets.all(16.0),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    Icon(Icons.info, color: Colors.blue, size: 24),
-                    SizedBox(height: 8),
+                    const Icon(Icons.info, color: Colors.blue, size: 24),
+                    const SizedBox(height: 8),
                     Text(
-                      'Diese Statistik basiert auf historischen Ziehungsdaten der letzten 10 Jahre. '
-                      'Vergangene Ergebnisse sind kein Indikator für zukünftige Gewinne.',
-                      style: TextStyle(fontSize: 12, color: Colors.blue),
+                      _languageService.getTranslation('statisticsDisclaimer'),
+                      style: const TextStyle(fontSize: 12, color: Colors.blue),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -416,22 +317,6 @@ class _StatsScreenState extends State<StatsScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildProbabilityItem(String chance, String probability) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(chance),
-          Text(
-            probability,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ],
       ),
     );
   }
