@@ -47,10 +47,10 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
       _currentTip = _lottoService.generateTipForSystem(widget.selectedSystem) as Map<String, List<int>>;
     });
 
-    // Tipp speichern - Haupt- und Bonus-Zahlen getrennt
-    final allNumbers = [
-      ..._currentTip['mainNumbers'] ?? [],
-      ..._currentTip['bonusNumbers'] ?? []
+    // Tipp speichern
+    final List<int> allNumbers = [
+      ..._currentTip['mainNumbers']!,
+      ..._currentTip['bonusNumbers']!
     ];
     await _storageService.saveTip(allNumbers, widget.selectedSystem);
 
@@ -156,8 +156,8 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                             spacing: 10,
                             runSpacing: 10,
                             children: [
-                              ...?_currentTip['mainNumbers']?.map((number) => _buildNumberChip(number, isBonus: false)).toList(),
-                              ...?_currentTip['bonusNumbers']?.map((number) => _buildNumberChip(number, isBonus: true)).toList(),
+                              ..._currentTip['mainNumbers']!.map((number) => _buildNumberChip(number, isBonus: false)).toList(),
+                              ..._currentTip['bonusNumbers']!.map((number) => _buildNumberChip(number, isBonus: true)).toList(),
                             ],
                           ),
                           

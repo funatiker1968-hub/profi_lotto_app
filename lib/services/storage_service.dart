@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'lotto_system_service.dart';
 
@@ -59,9 +60,9 @@ class StorageService {
   
   Future<void> clearTipsBySystem(String systemId) async {
     await init();
-    final allTips = _getAllTips();
+    final allTips = getTips();
     final filteredTips = allTips.where((tip) => tip['system'] != systemId).toList();
-    await _storage.setStringList('lotto_tips', 
+    await _prefs?.setStringList('lotto_tips', 
         filteredTips.map((tip) => jsonEncode(tip)).toList());
   }
 

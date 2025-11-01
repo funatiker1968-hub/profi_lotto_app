@@ -58,7 +58,7 @@ class LottoSystemService {
       bonusNumbersMax: 12,
       country: 'EU',
       currency: 'EUR',
-      schedule: 'Dienstags schedule: 'Mittwochs & Freitags' Freitags',
+      schedule: 'Dienstags & Freitags',
       primaryColor: Colors.orange,
     ),
     'sayisalloto': const LottoSystem(
