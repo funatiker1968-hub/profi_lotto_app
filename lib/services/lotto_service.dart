@@ -3,20 +3,23 @@ import 'lotto_system_service.dart';
 
 class LottoService {
   final Random _random = Random();
-  
+
   List<int> generateTip() {
     return _generateNumbers(6, 49);
   }
 
-  List<int> generateTipForSystem(LottoSystem system) {
+  Map<String, List<int>> generateTipForSystem(LottoSystem system) {
     final mainNumbers = _generateNumbers(system.mainNumbersCount, system.mainNumbersMax);
+    List<int> bonusNumbers = [];
 
     if (system.hasBonusNumbers) {
-      final bonusNumbers = _generateNumbers(system.bonusNumbersCount, system.bonusNumbersMax);
-      return [...mainNumbers, ...bonusNumbers];
+      bonusNumbers = _generateNumbers(system.bonusNumbersCount, system.bonusNumbersMax);
     }
 
-    return mainNumbers;
+    return {
+      'mainNumbers': mainNumbers,
+      'bonusNumbers': bonusNumbers,
+    };
   }
 
   List<int> _generateNumbers(int count, int max) {
@@ -28,7 +31,7 @@ class LottoService {
         numbers.add(number);
       }
     }
-    
+
     numbers.sort();
     return numbers;
   }
@@ -41,7 +44,7 @@ class LottoService {
         frequency[number] = (frequency[number] ?? 0) + 1;
       }
     }
-    
+
     final sortedNumbers = frequency.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 

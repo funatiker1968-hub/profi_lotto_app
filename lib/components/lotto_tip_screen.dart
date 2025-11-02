@@ -22,7 +22,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
   final LottoService _lottoService = LottoService();
   final StorageService _storageService = StorageService();
   final LanguageService _languageService = LanguageService();
-  Map<String, List<int>> _currentTip = {};
+  Map<String, List<int>> _currentTip = {'mainNumbers': [], 'bonusNumbers': []};
   List<Map<String, dynamic>> _tipHistory = [];
   bool _isLoading = true;
 
@@ -46,7 +46,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
     await _storageService.init();
 
     setState(() {
-      _currentTip = _lottoService.generateTipForSystem(widget.selectedSystem) as Map<String, List<int>>;
+      _currentTip = _lottoService.generateTipForSystem(widget.selectedSystem);
     });
 
     // Tipp speichern
@@ -68,7 +68,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
     await _storageService.clearTipsBySystem(widget.selectedSystem.id);
     setState(() {
       _tipHistory.clear();
-      _currentTip = {};
+      _currentTip = {'mainNumbers': [], 'bonusNumbers': []};
     });
   }
 
