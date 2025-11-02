@@ -238,7 +238,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Tipp-Historie (rechteckige Chips)
+                  // Tipp-Historie (ALLE Tipps anzeigen)
                   const Text(
                     'Tipp-Historie:',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -248,38 +248,91 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                   if (_tipHistory.isEmpty)
                     const Text('Noch keine Tipps gespeichert.')
                   else
-                    ..._tipHistory.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final tip = entry.value;
-                      final numbers = List<int>.from(tip['numbers'] ?? []);
+                    Column(
+                      children: _tipHistory.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final tip = entry.value;
+                        final numbers = List<int>.from(tip['numbers'] ?? []);
+                        
+                        // Trenne Haupt- und Bonus-Zahlen falls möglich
+                        final mainNumbersCount = widget.selectedSystem.mainNumbersCount;
+                        final mainNumbers = numbers.take(mainNumbersCount).toList();
+                        final bonusNumbers = numbers.skip(mainNumbersCount).toList();
 
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: widget.selectedSystem.primaryColor,
-                            child: Text(
-                              (index + 1).toString(),
-                              style: const TextStyle(color: Colors.white),
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Numerierung ECKIG (nicht als Kugel)
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: widget.selectedSystem.primaryColor,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        'Tipp ${index + 1}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                                      onPressed: () => _deleteSingleTip(index),
+                                    ),
+                                  ],
+                                ),
+                                
+                                const SizedBox(height: 8),
+                                
+                                // Hauptzahlen als Kugeln
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: mainNumbers.map((number) {
+                                    return buildNumberChip(
+                                      number,
+                                      primaryColor: widget.selectedSystem.primaryColor,
+                                      isBall: true,
+                                    );
+                                  }).toList(),
+                                ),
+                                
+                                // Bonus-Zahlen als Kugeln (falls vorhanden)
+                                if (bonusNumbers.isNotEmpty) ...[
+                                  const SizedBox(height: 8),
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: bonusNumbers.map((number) {
+                                      return buildNumberChip(
+                                        number,
+                                        isBonus: true,
+                                        isBall: true,
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                                
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Erstellt: ${_formatDate(tip['timestamp'])}',
+                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                ),
+                              ],
                             ),
                           ),
-                          title: Wrap(
-                            spacing: 8,
-                            children: numbers.map((number) {
-                              return buildHistoryNumberChip(number, widget.selectedSystem.primaryColor);
-                            }).toList(),
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => _deleteSingleTip(index),
-                          ),
-                          subtitle: Text(
-                            'Erstellt: ${_formatDate(tip['timestamp'])}',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                        );
+                      }).toList(),
+                    ),
                 ],
               ),
             ),
