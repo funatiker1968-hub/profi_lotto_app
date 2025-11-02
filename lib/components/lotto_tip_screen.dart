@@ -168,10 +168,11 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                               Wrap(
                                 spacing: 10,
                                 runSpacing: 10,
-                                children: _currentTip['mainNumbers']!
                                     .map((number) => buildNumberChip(
                                       number,
                                       primaryColor: widget.selectedSystem.primaryColor,
+                                      isBall: true,
+                                    ))
                                     ))
                                     .toList(),
                               ),
@@ -196,8 +197,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                                 Wrap(
                                   spacing: 10,
                                   runSpacing: 10,
-                                  children: _currentTip['bonusNumbers']!
-                                      .map((number) => buildNumberChip(number, isBonus: true))
+                                      .map((number) => buildNumberChip(number, isBonus: true, isBall: true))
                                       .toList(),
                                 ),
                               ],

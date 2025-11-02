@@ -3,6 +3,7 @@ import '../services/lotto_system_service.dart';
 import '../services/historical_data_service.dart';
 import '../services/language_service.dart';
 import '../services/theme_service.dart';
+import 'number_chip.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -44,6 +45,8 @@ class _StatsScreenState extends State<StatsScreen> {
     final stats = _currentStats;
     final hotNumbers = List<int>.from(stats['hotNumbers'] ?? []);
     final coldNumbers = List<int>.from(stats['coldNumbers'] ?? []);
+    final hotBonusNumbers = List<int>.from(stats['hotBonusNumbers'] ?? []);
+    final coldBonusNumbers = List<int>.from(stats['coldBonusNumbers'] ?? []);
     final totalDraws = stats['totalDraws'] ?? 0;
     final dateRange = Map<String, String>.from(stats['dateRange'] ?? {});
 
@@ -110,58 +113,6 @@ class _StatsScreenState extends State<StatsScreen> {
 
             const SizedBox(height: 20),
 
-            // Analyse-Zeitraum
-            Card(
-              color: Colors.blue.shade50,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _languageService.getTranslation('analysisPeriod'),
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_today, size: 16, color: Colors.blue),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${_languageService.getTranslation('timePeriod')}: ${dateRange['from']} - ${dateRange['to']}',
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.analytics, size: 16, color: Colors.blue),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${_languageService.getTranslation('period')}: 10 ${_languageService.getTranslation('years')}',
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.list, size: 16, color: Colors.blue),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${_languageService.getTranslation('analysis')}: $totalDraws ${_languageService.getTranslation('drawsAnalyzed')}',
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
             // Heiße Zahlen
             Card(
               child: Padding(
@@ -179,16 +130,55 @@ class _StatsScreenState extends State<StatsScreen> {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: hotNumbers.map((number) => _buildNumberChip(number, isHot: true)).toList(),
+                    
+                    // Hauptzahlen - Heiß
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hauptzahlen:',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: hotNumbers.take(_selectedSystem.mainNumbersCount).map((number) => 
+                            buildStatsNumberChip(number, isHot: true)
+                          ).toList(),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _languageService.getTranslation('hotNumbersDescription'),
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                    ),
+
+                    // Bonus-Zahlen - Heiß (falls vorhanden)
+                    if (hotBonusNumbers.isNotEmpty && _selectedSystem.hasBonusNumbers) ...[
+                      const SizedBox(height: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _getBonusLabel(_selectedSystem),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: hotBonusNumbers.take(_selectedSystem.bonusNumbersCount).map((number) => 
+                              buildStatsNumberChip(number, isHot: true, isBonus: true)
+                            ).toList(),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -213,16 +203,55 @@ class _StatsScreenState extends State<StatsScreen> {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: coldNumbers.map((number) => _buildNumberChip(number, isHot: false)).toList(),
+                    
+                    // Hauptzahlen - Kalt
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hauptzahlen:',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: coldNumbers.take(_selectedSystem.mainNumbersCount).map((number) => 
+                            buildStatsNumberChip(number, isHot: false)
+                          ).toList(),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _languageService.getTranslation('coldNumbersDescription'),
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                    ),
+
+                    // Bonus-Zahlen - Kalt (falls vorhanden)
+                    if (coldBonusNumbers.isNotEmpty && _selectedSystem.hasBonusNumbers) ...[
+                      const SizedBox(height: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _getBonusLabel(_selectedSystem),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: coldBonusNumbers.take(_selectedSystem.bonusNumbersCount).map((number) => 
+                              buildStatsNumberChip(number, isHot: false, isBonus: true)
+                            ).toList(),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -254,25 +283,16 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  Widget _buildNumberChip(int number, {required bool isHot}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: isHot ? Colors.red.shade200 : Colors.blue.shade200,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isHot ? Colors.red.shade400 : Colors.blue.shade400,
-          width: 2,
-        ),
-      ),
-      child: Text(
-        number.toString(),
-        style: TextStyle(
-          color: isHot ? Colors.red.shade900 : Colors.blue.shade900,
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
+  String _getBonusLabel(LottoSystem system) {
+    switch (system.id) {
+      case 'lotto6aus49':
+        return 'Superzahl:';
+      case 'eurojackpot':
+        return 'Eurozahlen:';
+      case 'sans_topu':
+        return 'Bonus-Zahl:';
+      default:
+        return 'Bonus-Zahlen:';
+    }
   }
 }
