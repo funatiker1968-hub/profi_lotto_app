@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/lotto_system_service.dart';
 import '../services/historical_data_service.dart';
 import '../services/language_service.dart';
+import '../services/theme_service.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -13,21 +14,24 @@ class StatsScreen extends StatefulWidget {
 class _StatsScreenState extends State<StatsScreen> {
   final List<LottoSystem> _systems = LottoSystemService.getAvailableSystems();
   final LanguageService _languageService = LanguageService();
+  final ThemeService _themeService = ThemeService();
   LottoSystem _selectedSystem = LottoSystemService.getAvailableSystems().first;
 
   @override
   void initState() {
     super.initState();
-    _languageService.addListener(_onLanguageChanged);
+    _languageService.addListener(_onUpdate);
+    _themeService.addListener(_onUpdate);
   }
 
   @override
   void dispose() {
-    _languageService.removeListener(_onLanguageChanged);
+    _languageService.removeListener(_onUpdate);
+    _themeService.removeListener(_onUpdate);
     super.dispose();
   }
 
-  void _onLanguageChanged() {
+  void _onUpdate() {
     setState(() {});
   }
 
@@ -35,20 +39,13 @@ class _StatsScreenState extends State<StatsScreen> {
     return HistoricalDataService.analyzeHistoricalData(_selectedSystem.id);
   }
 
-  Map<String, dynamic> get _currentTrends {
-    return HistoricalDataService.getNumberTrends(_selectedSystem.id);
-  }
-
   @override
   Widget build(BuildContext context) {
     final stats = _currentStats;
-    final trends = _currentTrends;
     final hotNumbers = List<int>.from(stats['hotNumbers'] ?? []);
     final coldNumbers = List<int>.from(stats['coldNumbers'] ?? []);
     final totalDraws = stats['totalDraws'] ?? 0;
     final dateRange = Map<String, String>.from(stats['dateRange'] ?? {});
-    final analysisPeriod = stats['analysisPeriod'] ?? 'Unbekannt';
-    final averageFrequency = stats['averageFrequency'] ?? '0';
 
     return Scaffold(
       appBar: AppBar(
@@ -62,6 +59,13 @@ class _StatsScreenState extends State<StatsScreen> {
               _languageService.switchLanguage();
             },
             tooltip: 'Sprache wechseln',
+          ),
+          IconButton(
+            icon: Icon(_themeService.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () {
+              _themeService.toggleTheme();
+            },
+            tooltip: 'Theme wechseln',
           ),
         ],
       ),
@@ -135,7 +139,7 @@ class _StatsScreenState extends State<StatsScreen> {
                         const Icon(Icons.analytics, size: 16, color: Colors.blue),
                         const SizedBox(width: 8),
                         Text(
-                          '${_languageService.getTranslation('period')}: $analysisPeriod',
+                          '${_languageService.getTranslation('period')}: 10 ${_languageService.getTranslation('years')}',
                           style: const TextStyle(fontSize: 14),
                         ),
                       ],
@@ -150,39 +154,6 @@ class _StatsScreenState extends State<StatsScreen> {
                           style: const TextStyle(fontSize: 14),
                         ),
                       ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Übersicht
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _languageService.getTranslation('statisticsOverview'),
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildStatItem(_languageService.getTranslation('analyzedDraws'), totalDraws.toString()),
-                        _buildStatItem(_languageService.getTranslation('averageFrequency'), averageFrequency),
-                        _buildStatItem(_languageService.getTranslation('timePeriod'), '10 ${_languageService.getTranslation('years')}'),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '${_languageService.getTranslation('basedOnHistorical')} ${dateRange['from']} ${_languageService.getTranslation('until')} ${dateRange['to']}',
-                      style: const TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
-                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
@@ -283,39 +254,23 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  Widget _buildStatItem(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 11, color: Colors.grey),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
   Widget _buildNumberChip(int number, {required bool isHot}) {
     return Container(
-      width: 40,
-      height: 40,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: isHot ? Colors.red.shade400 : Colors.blue.shade400,
-        shape: BoxShape.circle,
+        color: isHot ? Colors.red.shade200 : Colors.blue.shade200,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isHot ? Colors.red.shade400 : Colors.blue.shade400,
+          width: 2,
+        ),
       ),
-      child: Center(
-        child: Text(
-          number.toString(),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+      child: Text(
+        number.toString(),
+        style: TextStyle(
+          color: isHot ? Colors.red.shade900 : Colors.blue.shade900,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

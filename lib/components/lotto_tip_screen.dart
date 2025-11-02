@@ -3,6 +3,8 @@ import '../services/lotto_system_service.dart';
 import '../services/lotto_service.dart';
 import '../services/storage_service.dart';
 import '../services/language_service.dart';
+import 'stats_screen.dart';
+import 'number_chip.dart';
 
 class LottoTipScreen extends StatefulWidget {
   final LottoSystem selectedSystem;
@@ -96,29 +98,6 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
     }
   }
 
-  Widget _buildNumberChip(int number, {bool isBonus = false}) {
-    return Container(
-      width: 50,
-      height: 50,
-      decoration: BoxDecoration(
-        color: isBonus
-            ? Colors.orange.shade400
-            : widget.selectedSystem.primaryColor,
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Text(
-          number.toString(),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,6 +115,16 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
               setState(() {});
             },
             tooltip: 'Sprache wechseln',
+          ),
+          IconButton(
+            icon: const Icon(Icons.analytics),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const StatsScreen()),
+              );
+            },
+            tooltip: 'Statistik anzeigen',
           ),
         ],
       ),
@@ -180,7 +169,10 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                                 spacing: 10,
                                 runSpacing: 10,
                                 children: _currentTip['mainNumbers']!
-                                    .map((number) => _buildNumberChip(number, isBonus: false))
+                                    .map((number) => buildNumberChip(
+                                      number,
+                                      primaryColor: widget.selectedSystem.primaryColor,
+                                    ))
                                     .toList(),
                               ),
                             ],
@@ -205,7 +197,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                                   spacing: 10,
                                   runSpacing: 10,
                                   children: _currentTip['bonusNumbers']!
-                                      .map((number) => _buildNumberChip(number, isBonus: true))
+                                      .map((number) => buildNumberChip(number, isBonus: true))
                                       .toList(),
                                 ),
                               ],
@@ -268,7 +260,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                           ),
                           title: Wrap(
                             spacing: 8,
-                            children: numbers.map((number) => _buildNumberChip(number)).toList(),
+                            children: numbers.map((number) => buildHistoryNumberChip(number, widget.selectedSystem.primaryColor)).toList(),
                           ),
                           trailing: IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
