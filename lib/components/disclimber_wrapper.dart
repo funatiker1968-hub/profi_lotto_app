@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../services/language_service.dart';
-import '../services/theme_service.dart';
 import 'jackpot_overview_screen.dart';
 
 class DisclimberWrapper extends StatefulWidget {
@@ -13,120 +11,107 @@ class DisclimberWrapper extends StatefulWidget {
 
 class _DisclimberWrapperState extends State<DisclimberWrapper> {
   final LanguageService _languageService = LanguageService();
-  final ThemeService _themeService = ThemeService();
-  bool _disclaimerAccepted = false;
+  bool _accepted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _languageService.addListener(_onUpdate);
+  }
+
+  @override
+  void dispose() {
+    _languageService.removeListener(_onUpdate);
+    super.dispose();
+  }
+
+  void _onUpdate() {
+    setState(() {});
+  }
 
   void _acceptDisclaimer() {
     setState(() {
-      _disclaimerAccepted = true;
+      _accepted = true;
     });
-  }
-
-  void _declineDisclaimer() {
-    SystemNavigator.pop(); // App beenden
-  }
-
-  void _switchLanguage() {
-    _languageService.switchLanguage();
-    setState(() {});
-  }
-
-  void _switchTheme() {
-    _themeService.toggleTheme();
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_disclaimerAccepted) {
+    if (_accepted) {
       return const JackpotOverviewScreen();
     }
 
-    return MaterialApp(
-      theme: _themeService.isDarkMode ? ThemeData.dark() : ThemeData.light(),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(_languageService.getTranslation('disclaimerTitle')),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.language),
-              onPressed: _switchLanguage,
-              tooltip: 'Sprache wechseln',
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_languageService.getTranslation('disclaimerTitle')),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: () {
+              _languageService.switchLanguage();
+            },
+            tooltip: 'Sprache wechseln',
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Einfacher Disclaimer-Text
+            Card(
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    const Icon(Icons.warning, size: 48, color: Colors.orange),
+                    const SizedBox(height: 16),
+                    Text(
+                      _getDisclaimerText(),
+                      style: const TextStyle(fontSize: 16, height: 1.5),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
             ),
-            IconButton(
-              icon: Icon(_themeService.isDarkMode ? Icons.light_mode : Icons.dark_mode),
-              onPressed: _switchTheme,
-              tooltip: 'Theme wechseln',
+            
+            const SizedBox(height: 32),
+            
+            // Akzeptieren Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.check_circle),
+                label: Text(
+                  _languageService.getTranslation('accept'),
+                  style: const TextStyle(fontSize: 18),
+                ),
+                onPressed: _acceptDisclaimer,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                ),
+              ),
             ),
           ],
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.warning_amber,
-                size: 64,
-                color: Colors.orange,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                _languageService.getTranslation('disclaimerTitle'),
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              Card(
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'Diese App dient ausschließlich Unterhaltungszwecken. '
-                    'Lotto-Spiele basieren auf Glück und es gibt keine Garantie für Gewinne. '
-                    'Spiele verantwortungsbewusst und nur mit Geld, das du dir leisten kannst zu verlieren. '
-                    'Der Entwickler übernimmt keine Haftung für finanzielle Verluste.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey.shade700,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: _declineDisclaimer,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    ),
-                    child: Text(_languageService.getTranslation('decline')),
-                  ),
-                  ElevatedButton(
-                    onPressed: _acceptDisclaimer,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    ),
-                    child: Text(_languageService.getTranslation('accept')),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
     );
+  }
+
+  String _getDisclaimerText() {
+    switch (_languageService.currentLanguage) {
+      case 'de':
+        return 'Diese App dient Unterhaltungszwecken. Lotto ist ein Glücksspiel. Sie bestätigen, das Mindestalter erreicht zu haben.';
+      case 'en':
+        return 'This app is for entertainment purposes. Lotto is a game of chance. You confirm you have reached the minimum age.';
+      case 'tr':
+        return 'Bu uygulama eğlence amaçlıdır. Loto bir şans oyunudur. Asgari yaşa ulaştığınızı onaylıyorsunuz.';
+      default:
+        return 'This app is for entertainment purposes.';
+    }
   }
 }

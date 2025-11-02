@@ -6,6 +6,7 @@ class LanguageService with ChangeNotifier {
   LanguageService._internal();
 
   String _currentLanguage = 'de';
+  
   final Map<String, Map<String, String>> _translations = {
     'de': {
       'appTitle': 'Lotto World Pro',
@@ -22,7 +23,6 @@ class LanguageService with ChangeNotifier {
       'bonusNumbers': 'Bonus-Zahlen',
       'superNumber': 'Superzahl',
       'euroNumbers': 'Eurozahlen',
-      // StatsScreen Übersetzungen
       'statistics': 'Statistik & Analyse',
       'lottoSystem': 'Lotto System',
       'analysisPeriod': 'Analyse-Zeitraum',
@@ -66,7 +66,6 @@ class LanguageService with ChangeNotifier {
       'bonusNumbers': 'Bonus Numbers',
       'superNumber': 'Super Number',
       'euroNumbers': 'Euro Numbers',
-      // StatsScreen Übersetzungen
       'statistics': 'Statistics & Analysis',
       'lottoSystem': 'Lotto System',
       'analysisPeriod': 'Analysis Period',
@@ -110,7 +109,6 @@ class LanguageService with ChangeNotifier {
       'bonusNumbers': 'Bonus Numara',
       'superNumber': 'Süper Numara',
       'euroNumbers': 'Euro Numara',
-      // StatsScreen Übersetzungen
       'statistics': 'İstatistik & Analiz',
       'lottoSystem': 'Lotto Sistemi',
       'analysisPeriod': 'Analiz Dönemi',

@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 
 class DisclaimerService {
   static const String _disclaimerKey = 'disclaimer_accepted';
-  
+
   Future<bool> isDisclaimerAccepted() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -31,7 +31,7 @@ class DisclaimerService {
     }
   }
 
-  // Disclaimer-Texte
+  // Verbesserte Disclaimer-Texte
   static Map<String, String> getDisclaimerTexts(String languageCode) {
     switch (languageCode) {
       case 'de':
@@ -46,106 +46,100 @@ class DisclaimerService {
   }
 
   static final Map<String, String> _germanDisclaimer = {
-    'title': 'Haftungsausschluss & Hinweis',
+    'title': 'Wichtiger Haftungsausschluss',
     'content': '''
-**WICHTIGER HAFTUNGSAUSSCHLUSS**
+**EXPERIMENTELLES PROGRAMM - KEINE GEWINNGARANTIE**
 
-Diese App dient ausschließlich Unterhaltungs- und Experimentierzwecken. 
+Diese Anwendung ist ein rein experimentelles Projekt ohne jeglichen Anspruch auf:
+• Richtigkeit der generierten Zahlen
+• Mathematische Gewinnoptimierung  
+• Garantie auf Gewinne oder Erfolge
 
-**Bitte beachten Sie:**
+**HAFTUNGSAUSSCHLUSS DES INITIATORS:**
+Der Entwickler und Initiator dieser App übernimmt ausdrücklich KEINE Haftung für:
+• Finanzielle Verluste durch Spieleinsätze
+• Falsche Erwartungen an Gewinnchancen
+• Entscheidungen basierend auf den generierten Zahlen
+• Technische Fehler oder Ungenauigkeiten
 
-1. **KEINE GEWÄHRLEISTUNG:** 
-   - Die generierten Zahlen sind ZUFALLSZAHLEN
-   - Es wird KEINE Gewinn-Garantie gegeben
-   - Die Zahlen haben KEINE höhere Gewinnwahrscheinlichkeit
+**WICHTIGE HINWEISE:**
+• Die generierten Zahlen sind ZUFALLSERGEBNISSE
+• Keine Verbindung zu offiziellen Lotteriegesellschaften
+• Spielen verursacht Kosten - setzen Sie nur Geld ein, das Sie verlieren können
+• Statistiken und Analysen dienen nur Unterhaltungszwecken
 
-2. **EXPERIMENTELLE FUNKTION:**
-   - Die App verwendet algorithmische Zufallsgeneratoren
-   - Ergebnisse sind statistische Simulationen
-   - Keine Verbindung zu offiziellen Lotto-Gesellschaften
+**ALTERSBESCHRÄNKUNG & VERANTWORTUNG:**
+Nur für volljährige Personen (18+). Glücksspiel kann süchtig machen.
 
-3. **RECHTLICHER HINWEIS:**
-   - Keine Haftung für finanzielle Verluste
-   - Spielen auf eigenes Risiko
-   - Verantwortungsvolles Spielen wird empfohlen
-
-4. **ALTERSBESCHRÄNKUNG:**
-   - Nur für Personen ab 18 Jahren
-   - Glücksspiel kann süchtig machen
-
-Durch die Nutzung dieser App bestätigen Sie, dass Sie diese Bedingungen verstanden und akzeptiert haben.
+Durch Akzeptieren bestätigen Sie, diesen Haftungsausschluss vollständig verstanden zu haben.
 ''',
-    'accept': 'Ich verstehe und akzeptiere die Bedingungen',
+    'accept': 'Ich verstehe und akzeptiere vollständig',
     'decline': 'Ablehnen und App schließen',
     'continue': 'Fortfahren',
   };
 
   static final Map<String, String> _englishDisclaimer = {
-    'title': 'Disclaimer & Notice',
+    'title': 'Important Disclaimer',
     'content': '''
-**IMPORTANT DISCLAIMER**
+**EXPERIMENTAL PROGRAM - NO WIN GUARANTEE**
 
-This app is for entertainment and experimental purposes only.
+This application is a purely experimental project without any claim to:
+• Accuracy of generated numbers
+• Mathematical win optimization
+• Guarantee of winnings or success
 
-**Please note:**
+**INITIATOR LIABILITY DISCLAIMER:**
+The developer and initiator of this app expressly assumes NO liability for:
+• Financial losses through game stakes
+• False expectations about winning chances  
+• Decisions based on the generated numbers
+• Technical errors or inaccuracies
 
-1. **NO WARRANTY:**
-   - Generated numbers are RANDOM NUMBERS
-   - NO winning guarantee is provided
-   - Numbers have NO higher probability of winning
+**IMPORTANT NOTES:**
+• The generated numbers are RANDOM RESULTS
+• No connection to official lottery companies
+• Playing incurs costs - only stake money you can afford to lose
+• Statistics and analyses are for entertainment purposes only
 
-2. **EXPERIMENTAL FEATURE:**
-   - The app uses algorithmic random generators
-   - Results are statistical simulations
-   - No connection to official lottery companies
+**AGE RESTRICTION & RESPONSIBILITY:**
+For adults only (18+). Gambling can be addictive.
 
-3. **LEGAL NOTICE:**
-   - No liability for financial losses
-   - Play at your own risk
-   - Responsible gaming is recommended
-
-4. **AGE RESTRICTION:**
-   - For persons 18 years and older only
-   - Gambling can be addictive
-
-By using this app, you confirm that you have understood and accepted these terms.
+By accepting, you confirm that you have fully understood this disclaimer.
 ''',
-    'accept': 'I understand and accept the terms',
+    'accept': 'I fully understand and accept',
     'decline': 'Decline and close app',
     'continue': 'Continue',
   };
 
   static final Map<String, String> _turkishDisclaimer = {
-    'title': 'Sorumluluk Reddi & Uyarı',
+    'title': 'Önemli Sorumluluk Reddi',
     'content': '''
-**ÖNEMLİ SORUMLULUK REDDİ**
+**DENEYSEL PROGRAM - KAZANMA GARANTİSİ YOKTUR**
 
-Bu uygulama yalnızca eğlence ve deneysel amaçlar içindir.
+Bu uygulama aşağıdakiler konusunda hiçbir iddiası olmayan tamamen deneysel bir projedir:
+• Üretilen numaraların doğruluğu
+• Matematiksel kazanç optimizasyonu
+• Kazanç veya başarı garantisi
 
-**Lütfen dikkat edin:**
+**BAŞLATICI SORUMLULUK REDDİ:**
+Bu uygulamanın geliştiricisi ve başlatıcısı aşağıdakiler için açıkça SORUMLULUK KABUL ETMEZ:
+• Oyun bahisleri yoluyla oluşan mali kayıplar
+• Kazanma şansları hakkındaki yanlış beklentiler
+• Üretilen numaralara dayalı kararlar
+• Teknik hatalar veya yanlışlıklar
 
-1. **GARANTİ YOKTUR:**
-   - Üretilen numaralar RASTGELE SAYILARDIR
-   - Kazanma GARANTİSİ verilmez
-   - Numara kazanma olasılığı DAHA YÜKSEK DEĞİLDİR
+**ÖNEMLİ NOTLAR:**
+• Üretilen numaralar RASTGELE SONUÇLARDIR
+• Resmi piyango şirketleriyle bağlantı yoktur
+• Oynamak maliyete neden olur - yalnızca kaybetmeyi göze alabileceğiniz parayı kullanın
+• İstatistikler ve analizler yalnızca eğlence amaçlıdır
 
-2. **DENEYSEL ÖZELLİK:**
-   - Uygulama algoritmik rastgele üreticiler kullanır
-   - Sonuçlar istatistiksel simülasyonlardır
-   - Resmi piyango şirketleriyle bağlantı yoktur
+**YAŞ SINIRLAMASI & SORUMLULUK:**
+Yalnızca yetişkinler (18+) içindir. Kumar bağımlılık yapabilir.
 
-3. **YASAL UYARI:**
-   - Mali kayıplardan sorumluluk kabul edilmez
-   - Kendi riskinizle oynayın
-   - Sorumlu oyun önerilir
-
-4. **YAŞ SINIRLAMASI:**
-   - Sadece 18 yaş ve üstü kişiler içindir
-   - Kumar bağımlılık yapabilir
-
-Bu uygulamayı kullanarak, bu şartları anladığınızı ve kabul ettiğinizi onaylarsınız.
+Kabul ederek, bu sorumluluk reddini tamamen anladığınızı onaylarsınız.
 ''',
-    'accept': 'Şartları anladım ve kabul ediyorum',
+    'accept': 'Tamamen anladım ve kabul ediyorum',
     'decline': 'Reddet ve uygulamayı kapat',
     'continue': 'Devam et',
   };
