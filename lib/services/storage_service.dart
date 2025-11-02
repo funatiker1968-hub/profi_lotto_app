@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'lotto_system_service.dart';
+import 'dart:convert';
 
 class StorageService {
   static const String _tipsKey = 'lotto_tips';
@@ -8,12 +9,11 @@ class StorageService {
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     final tipsJson = prefs.getString(_tipsKey);
-    
+
     if (tipsJson != null) {
       try {
-        // JSON parsing würde hier implementiert werden
-        // Für jetzt simulieren wir leere Daten
-        _tips = [];
+        final List<dynamic> tipsList = json.decode(tipsJson);
+        _tips = tipsList.cast<Map<String, dynamic>>();
       } catch (e) {
         _tips = [];
       }
@@ -30,22 +30,39 @@ class StorageService {
     return _tips.where((tip) => tip['system'] == systemId).toList();
   }
 
-  Future<void> saveTip(List<int> numbers, LottoSystem system) async {
+  Future<String> saveTip(List<int> numbers, LottoSystem system) async {
+    final tipId = DateTime.now().millisecondsSinceEpoch.toString();
+    
     final tip = {
+      'id': tipId,
       'numbers': numbers,
       'system': system.id,
-      'timestamp': DateTime.now().toIso8601String(),
+      'createdAt': DateTime.now().toIso8601String(),
+      'winInfo': {
+        'isWinner': false,
+        'winAmount': 0.0,
+        'winTier': 0,
+        'matchedNumbers': 0,
+        'matchedBonusNumbers': 0,
+      },
     };
-    
+
     _tips.add(tip);
     await _saveToStorage();
+    return tipId;
   }
 
-  Future<void> deleteTip(int index) async {
-    if (index >= 0 && index < _tips.length) {
-      _tips.removeAt(index);
+  Future<void> updateTipWinInfo(String tipId, Map<String, dynamic> winInfo) async {
+    final tipIndex = _tips.indexWhere((tip) => tip['id'] == tipId);
+    if (tipIndex != -1) {
+      _tips[tipIndex]['winInfo'] = winInfo;
       await _saveToStorage();
     }
+  }
+
+  Future<void> deleteTip(String tipId) async {
+    _tips.removeWhere((tip) => tip['id'] == tipId);
+    await _saveToStorage();
   }
 
   Future<void> clearTipsBySystem(String systemId) async {
@@ -60,8 +77,29 @@ class StorageService {
 
   Future<void> _saveToStorage() async {
     final prefs = await SharedPreferences.getInstance();
-    // Hier würde JSON serialization implementiert werden
-    // Für jetzt speichern wir einfach eine leere Liste
-    await prefs.setString(_tipsKey, '[]');
+    await prefs.setString(_tipsKey, json.encode(_tips));
+  }
+
+  // Statistik-Methoden
+  int getTotalTipsCount() {
+    return _tips.length;
+  }
+
+  int getSystemTipsCount(String systemId) {
+    return _tips.where((tip) => tip['system'] == systemId).length;
+  }
+
+  double getTotalWins() {
+    return _tips.fold(0.0, (sum, tip) {
+      final winInfo = tip['winInfo'] as Map<String, dynamic>?;
+      return sum + (winInfo?['winAmount'] ?? 0.0);
+    });
+  }
+
+  int getWinCount() {
+    return _tips.where((tip) {
+      final winInfo = tip['winInfo'] as Map<String, dynamic>?;
+      return winInfo?['isWinner'] == true;
+    }).length;
   }
 }

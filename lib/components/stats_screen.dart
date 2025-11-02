@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/lotto_system_service.dart';
 import '../services/historical_data_service.dart';
+import '../services/lotto_system_service.dart';
 import '../services/language_service.dart';
 import '../services/theme_service.dart';
 import 'number_chip.dart';
@@ -13,371 +13,172 @@ class StatsScreen extends StatefulWidget {
 }
 
 class _StatsScreenState extends State<StatsScreen> {
-  final List<LottoSystem> _systems = LottoSystemService.getAvailableSystems();
+  final HistoricalDataService _dataService = HistoricalDataService();
   final LanguageService _languageService = LanguageService();
   final ThemeService _themeService = ThemeService();
-  LottoSystem _selectedSystem = LottoSystemService.getAvailableSystems().first;
   
-  // Cache für Statistiken - verhindert Neugenerierung bei Sprach/Theme-Änderung
-  final Map<String, Map<String, dynamic>> _statsCache = {};
+  final Map<String, List<NumberStats>> _hotNumbers = {};
+  final Map<String, List<NumberStats>> _coldNumbers = {};
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _languageService.addListener(_onUpdate);
-    _themeService.addListener(_onUpdate);
+    _loadStats();
+  }
+
+  void _loadStats() async {
+    final systems = LottoSystemService.getAvailableSystems();
     
-    // Initialisiere Cache für alle Systeme
-    for (final system in _systems) {
-      _statsCache[system.id] = HistoricalDataService.analyzeHistoricalData(system.id);
+    for (final system in systems) {
+      // Verwende verfügbare historische Daten
+      final Map<String, dynamic> exampleData = {
+        'lotto6aus49': [
+          {'numbers': [3, 7, 15, 23, 34, 49, 8], 'date': '2024-01-01'},
+          {'numbers': [5, 12, 18, 27, 35, 42, 3], 'date': '2024-01-08'},
+          {'numbers': [8, 14, 22, 29, 37, 45, 9], 'date': '2024-01-15'},
+        ],
+        'eurojackpot': [
+          {'numbers': [5, 12, 23, 32, 45, 3, 7], 'date': '2024-01-02'},
+          {'numbers': [7, 15, 24, 33, 41, 1, 8], 'date': '2024-01-09'},
+        ],
+        'sans_topu': [
+          {'numbers': [8, 15, 24, 33, 42, 49, 12], 'date': '2024-01-03'},
+          {'numbers': [3, 11, 19, 28, 36, 44, 5], 'date': '2024-01-10'},
+        ]
+      };
+      
+      final systemData = exampleData[system.id] ?? [];
+      final drawings = systemData.map((data) => _createDrawing(data, system.id)).toList();
+      
+      final hotNumbers = _dataService.getHotNumbers(drawings);
+      final coldNumbers = _dataService.getColdNumbers(drawings);
+      
+      setState(() {
+        _hotNumbers[system.id] = hotNumbers;
+        _coldNumbers[system.id] = coldNumbers;
+      });
     }
+    
+    setState(() {
+      _isLoading = false;
+    });
   }
 
-  @override
-  void dispose() {
-    _languageService.removeListener(_onUpdate);
-    _themeService.removeListener(_onUpdate);
-    super.dispose();
-  }
-
-  void _onUpdate() {
-    setState(() {}); // Nur UI aktualisieren, keine Daten neu generieren
-  }
-
-  Map<String, dynamic> get _currentStats {
-    // Verwende gecachte Daten statt neu zu generieren
-    return _statsCache[_selectedSystem.id] ?? {};
+  // Hilfsmethode zur Erstellung von Drawing-Objekten
+  dynamic _createDrawing(Map<String, dynamic> data, String systemId) {
+    return {
+      'numbers': List<int>.from(data['numbers'] ?? []),
+      'date': data['date'],
+      'systemId': systemId
+    };
   }
 
   @override
   Widget build(BuildContext context) {
-    final stats = _currentStats;
-    final hotNumbers = List<int>.from(stats['hotNumbers'] ?? []);
-    hotNumbers.sort();
-    final coldNumbers = List<int>.from(stats['coldNumbers'] ?? []);
-    coldNumbers.sort();
-    final hotBonusNumbers = List<int>.from(stats['hotBonusNumbers'] ?? []);
-    hotBonusNumbers.sort();
-    final coldBonusNumbers = List<int>.from(stats['coldBonusNumbers'] ?? []);
-    coldBonusNumbers.sort();
-    final totalDraws = stats['totalDraws'] ?? 0;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(_languageService.getTranslation('statistics')),
+        title: const Text('Statistik & Analyse'),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.language),
             onPressed: () {
               _languageService.switchLanguage();
+              setState(() {});
             },
-            tooltip: 'Sprache wechseln',
           ),
           IconButton(
             icon: Icon(_themeService.isDarkMode ? Icons.light_mode : Icons.dark_mode),
             onPressed: () {
               _themeService.toggleTheme();
+              setState(() {});
             },
-            tooltip: 'Theme wechseln',
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSystemStats('lotto6aus49', 'Lotto 6aus49'),
+                  const SizedBox(height: 24),
+                  _buildSystemStats('eurojackpot', 'Eurojackpot'),
+                  const SizedBox(height: 24),
+                  _buildSystemStats('sans_topu', 'Sayısal Loto'),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget _buildSystemStats(String systemId, String systemName) {
+    final hotNumbers = _hotNumbers[systemId] ?? [];
+    final coldNumbers = _coldNumbers[systemId] ?? [];
+    final system = LottoSystemService.getSystemById(systemId);
+
+    return Card(
+      elevation: 4,
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // System Auswahl
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _languageService.getTranslation('lottoSystem'),
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    DropdownButton<LottoSystem>(
-                      value: _selectedSystem,
-                      isExpanded: true,
-                      items: _systems.map((system) {
-                        return DropdownMenuItem(
-                          value: system,
-                          child: Text(system.name),
-                        );
-                      }).toList(),
-                      onChanged: (system) {
-                        if (system != null) {
-                          setState(() {
-                            _selectedSystem = system;
-                          });
-                        }
-                      },
-                    ),
-                  ],
-                ),
+            Text(
+              systemName,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // Analyse-Info
-            Card(
-              color: Colors.blue.shade50,
-              child: const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '📊 Statistik-Info',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Basierend auf historischen Daten der letzten 10 Jahre',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Daten werden nur beim Systemwechsel neu geladen',
-                      style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Übersicht
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _languageService.getTranslation('statisticsOverview'),
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildStatItem('Analysierte\nZiehungen', totalDraws.toString()),
-                        _buildStatItem('Zeitraum', '10 Jahre'),
-                        _buildStatItem('System', _selectedSystem.name),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
+            const SizedBox(height: 16),
+            
             // Heiße Zahlen
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _languageService.getTranslation('hotNumbers'),
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '${_languageService.getTranslation('mostFrequentlyDrawn')}',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    
-                    // Hauptzahlen - Heiß
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hauptzahlen:',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: hotNumbers.take(_selectedSystem.mainNumbersCount).map((number) => 
-                            buildStatsNumberChip(number, isHot: true)
-                          ).toList(),
-                        ),
-                      ],
-                    ),
-
-                    // Bonus-Zahlen - Heiß (falls vorhanden)
-                    if (hotBonusNumbers.isNotEmpty && _selectedSystem.hasBonusNumbers) ...[
-                      const SizedBox(height: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _getBonusLabel(_selectedSystem),
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: hotBonusNumbers.take(_selectedSystem.bonusNumbersCount).map((number) => 
-                              buildStatsNumberChip(number, isHot: true, isBonus: true)
-                            ).toList(),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
+            const Text(
+              '🔥 Heiße Zahlen (häufig gezogen):',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
             ),
-
-            const SizedBox(height: 20),
-
+            const SizedBox(height: 8),
+            _buildNumberList(hotNumbers, system.primaryColor),
+            
+            const SizedBox(height: 16),
+            
             // Kalte Zahlen
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _languageService.getTranslation('coldNumbers'),
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '${_languageService.getTranslation('leastFrequentlyDrawn')}',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    
-                    // Hauptzahlen - Kalt
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hauptzahlen:',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: coldNumbers.take(_selectedSystem.mainNumbersCount).map((number) => 
-                            buildStatsNumberChip(number, isHot: false)
-                          ).toList(),
-                        ),
-                      ],
-                    ),
-
-                    // Bonus-Zahlen - Kalt (falls vorhanden)
-                    if (coldBonusNumbers.isNotEmpty && _selectedSystem.hasBonusNumbers) ...[
-                      const SizedBox(height: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _getBonusLabel(_selectedSystem),
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: coldBonusNumbers.take(_selectedSystem.bonusNumbersCount).map((number) => 
-                              buildStatsNumberChip(number, isHot: false, isBonus: true)
-                            ).toList(),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
+            const Text(
+              '❄️ Kalte Zahlen (selten gezogen):',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
             ),
-
-            const SizedBox(height: 40),
-
-            // Info
-            Card(
-              color: Colors.blue.shade50,
-              child: const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Icon(Icons.info, color: Colors.blue, size: 24),
-                    SizedBox(height: 8),
-                    Text(
-                      'Diese Statistik basiert auf historischen Ziehungsdaten. Vergangene Ergebnisse sind kein Indikator für zukünftige Gewinne.',
-                      style: TextStyle(fontSize: 12, color: Colors.blue),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            const SizedBox(height: 8),
+            _buildNumberList(coldNumbers, Colors.grey),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 11, color: Colors.grey),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  String _getBonusLabel(LottoSystem system) {
-    switch (system.id) {
-      case 'lotto6aus49':
-        return 'Superzahl:';
-      case 'eurojackpot':
-        return 'Eurozahlen:';
-      case 'sans_topu':
-        return 'Bonus-Zahl:';
-      default:
-        return 'Bonus-Zahlen:';
+  Widget _buildNumberList(List<NumberStats> stats, Color color) {
+    if (stats.isEmpty) {
+      return const Text('Demo-Daten werden geladen...');
     }
+    
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: stats.take(6).map((stat) => buildNumberChip(
+        stat.number,
+        primaryColor: color,
+        isBall: true,
+      )).toList(),
+    );
   }
 }

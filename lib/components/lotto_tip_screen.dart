@@ -93,7 +93,8 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
     }
 
     if (globalIndex != -1) {
-      await _storageService.deleteTip(globalIndex);
+      // KORREKTUR: globalIndex in String umwandeln
+      await _storageService.deleteTip(globalIndex.toString());
       _loadTips();
     }
   }
@@ -199,8 +200,8 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                                   runSpacing: 10,
                                   children: _currentTip['bonusNumbers']!.map((number) {
                                     return buildNumberChip(
-                                      number, 
-                                      isBonus: true, 
+                                      number,
+                                      isBonus: true,
                                       isBall: true
                                     );
                                   }).toList(),
@@ -237,7 +238,6 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                   ),
 
                   const SizedBox(height: 32),
-
                   // Tipp-Historie (ALLE Tipps anzeigen)
                   const Text(
                     'Tipp-Historie:',
@@ -253,7 +253,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                         final index = entry.key;
                         final tip = entry.value;
                         final numbers = List<int>.from(tip['numbers'] ?? []);
-                        
+
                         // Trenne Haupt- und Bonus-Zahlen falls möglich
                         final mainNumbersCount = widget.selectedSystem.mainNumbersCount;
                         final mainNumbers = numbers.take(mainNumbersCount).toList();
@@ -292,9 +292,9 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                                     ),
                                   ],
                                 ),
-                                
+
                                 const SizedBox(height: 8),
-                                
+
                                 // Hauptzahlen als Kugeln
                                 Wrap(
                                   spacing: 8,
@@ -307,7 +307,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                                     );
                                   }).toList(),
                                 ),
-                                
+
                                 // Bonus-Zahlen als Kugeln (falls vorhanden)
                                 if (bonusNumbers.isNotEmpty) ...[
                                   const SizedBox(height: 8),
@@ -353,7 +353,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
         return 'Bonus-Zahlen:';
     }
   }
-
+  
   String _formatDate(dynamic timestamp) {
     if (timestamp == null) return 'Unbekannt';
     final date = DateTime.parse(timestamp.toString());

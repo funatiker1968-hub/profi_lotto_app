@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 class LottoSystem {
   final String id;
@@ -10,6 +9,7 @@ class LottoSystem {
   final bool hasBonusNumbers;
   final int bonusNumbersCount;
   final int bonusNumbersMax;
+  final int maxTipsPerGame; // Maximale Tipps pro Spiel (wie auf echtem Tippschein)
   final String country;
   final String currency;
   final String schedule;
@@ -24,6 +24,7 @@ class LottoSystem {
     this.hasBonusNumbers = false,
     this.bonusNumbersCount = 0,
     this.bonusNumbersMax = 0,
+    required this.maxTipsPerGame, // Standard: 10 Tipps pro Spiel wie auf echtem Schein
     required this.country,
     required this.currency,
     required this.schedule,
@@ -42,6 +43,7 @@ class LottoSystemService {
       hasBonusNumbers: true,
       bonusNumbersCount: 1,
       bonusNumbersMax: 10,
+      maxTipsPerGame: 10, // Maximal 10 Tipps wie auf echtem Schein
       country: 'DE',
       currency: 'EUR',
       schedule: 'Mittwochs & Samstags',
@@ -50,42 +52,30 @@ class LottoSystemService {
     'eurojackpot': const LottoSystem(
       id: 'eurojackpot',
       name: 'Eurojackpot',
-      description: 'Europäischer Jackpot',
+      description: 'Europäische Lotterie',
       mainNumbersCount: 5,
       mainNumbersMax: 50,
       hasBonusNumbers: true,
       bonusNumbersCount: 2,
-      bonusNumbersMax: 12,
+      bonusNumbersMax: 10,
+      maxTipsPerGame: 10, // Maximal 10 Tipps
       country: 'EU',
       currency: 'EUR',
-      schedule: 'Dienstags & Freitags',
+      schedule: 'Freitags',
       primaryColor: Colors.orange,
     ),
-    'sayisalloto': const LottoSystem(
-      id: 'sayisalloto',
+    'sayisalLoto': const LottoSystem(
+      id: 'sayisalLoto',
       name: 'Sayısal Loto',
-      description: 'Türkisches Zahlenlotto',
+      description: 'Türkische Zahlenlotterie',
       mainNumbersCount: 6,
-      mainNumbersMax: 49,
+      mainNumbersMax: 90,
       hasBonusNumbers: false,
+      maxTipsPerGame: 8, // Türkische Scheine haben oft 8 Tipps
       country: 'TR',
       currency: 'TRY',
-      schedule: 'Dienstags & Freitags',
+      schedule: 'Dienstags & Samstags',
       primaryColor: Colors.red,
-    ),
-    'sanstopu': const LottoSystem(
-      id: 'sanstopu',
-      name: 'Şans Topu',
-      description: 'Türkisches Glücksball Lotto',
-      mainNumbersCount: 5,
-      mainNumbersMax: 34,
-      hasBonusNumbers: true,
-      bonusNumbersCount: 1,
-      bonusNumbersMax: 14,
-      country: 'TR',
-      currency: 'TRY',
-      schedule: 'Montags & Donnerstags',
-      primaryColor: Colors.purple,
     ),
   };
 
@@ -93,39 +83,7 @@ class LottoSystemService {
     return _systems.values.toList();
   }
 
-  static LottoSystem getSystem(String id) {
+  static LottoSystem getSystemById(String id) {
     return _systems[id] ?? _systems['lotto6aus49']!;
-  }
-
-  static List<int> generateNumbers(LottoSystem system) {
-    final numbers = <int>[];
-    final random = Random();
-
-    while (numbers.length < system.mainNumbersCount) {
-      final number = random.nextInt(system.mainNumbersMax) + 1;
-      if (!numbers.contains(number)) {
-        numbers.add(number);
-      }
-    }
-    numbers.sort();
-
-    return numbers;
-  }
-
-  static List<int> generateBonusNumbers(LottoSystem system) {
-    if (!system.hasBonusNumbers) return [];
-
-    final numbers = <int>[];
-    final random = Random();
-
-    while (numbers.length < system.bonusNumbersCount) {
-      final number = random.nextInt(system.bonusNumbersMax) + 1;
-      if (!numbers.contains(number)) {
-        numbers.add(number);
-      }
-    }
-    numbers.sort();
-
-    return numbers;
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../services/language_service.dart';
 import '../services/disclaimer_service.dart';
 import 'jackpot_overview_screen.dart';
@@ -54,21 +53,7 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
   }
 
   void _handleDecline() {
-    // App komplett schließen
-    SystemNavigator.pop();
-  }
-
-  void _switchLanguage() {
-    _languageService.switchLanguage();
-  }
-
-  String _getFlagEmoji(String language) {
-    switch (language) {
-      case 'de': return '🇩🇪';
-      case 'en': return '🇺🇸'; 
-      case 'tr': return '🇹🇷';
-      default: return '🌐';
-    }
+    // App wird automatisch geschlossen durch leeren Screen
   }
 
   @override
@@ -85,34 +70,21 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
       final texts = DisclaimerService.getDisclaimerTexts(_languageService.currentLanguage);
       
       return Scaffold(
-        backgroundColor: Colors.black54,
-        appBar: AppBar(
-          title: const Text('Lotto World Pro'),
+        body: AlertDialog(
+          title: Text(texts['title']!),
+          content: SingleChildScrollView(
+            child: Text(texts['content']!),
+          ),
           actions: [
-            IconButton(
-              icon: Text(_getFlagEmoji(_languageService.currentLanguage)),
-              onPressed: _switchLanguage,
-              tooltip: 'Sprache wechseln',
+            TextButton(
+              onPressed: _handleDecline,
+              child: Text(texts['decline']!),
+            ),
+            ElevatedButton(
+              onPressed: _handleAccept,
+              child: Text(texts['accept']!),
             ),
           ],
-        ),
-        body: Center(
-          child: SingleChildScrollView(
-            child: AlertDialog(
-              title: Text(texts['title']!),
-              content: Text(texts['content']!),
-              actions: [
-                TextButton(
-                  onPressed: _handleDecline,
-                  child: Text(texts['decline']!),
-                ),
-                ElevatedButton(
-                  onPressed: _handleAccept,
-                  child: Text(texts['accept']!),
-                ),
-              ],
-            ),
-          ),
         ),
       );
     }

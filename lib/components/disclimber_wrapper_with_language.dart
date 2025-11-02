@@ -65,7 +65,7 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
   String _getFlagEmoji(String language) {
     switch (language) {
       case 'de': return '🇩🇪';
-      case 'en': return '🇺🇸'; 
+      case 'en': return '🇺🇸';
       case 'tr': return '🇹🇷';
       default: return '🌐';
     }
@@ -92,7 +92,7 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
             IconButton(
               icon: Text(_getFlagEmoji(_languageService.currentLanguage)),
               onPressed: _switchLanguage,
-              tooltip: 'Sprache wechseln',
+              tooltip: 'Sprache wechseln / Change language / Dil değiştir',
             ),
           ],
         ),
