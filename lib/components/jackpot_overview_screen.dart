@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'number_chip.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../services/lotto_system_service.dart';
@@ -8,6 +7,7 @@ import '../services/language_service.dart';
 import '../services/theme_service.dart';
 import 'lotto_tip_screen.dart';
 import 'stats_screen.dart';
+import 'number_chip.dart';
 
 class JackpotOverviewScreen extends StatefulWidget {
   const JackpotOverviewScreen({super.key});
@@ -30,7 +30,6 @@ class _JackpotOverviewScreenState extends State<JackpotOverviewScreen> with Tick
       duration: const Duration(seconds: 1),
     )..repeat();
     
-    // Listener für Sprach- und Theme-Änderungen
     _languageService.addListener(_onUpdate);
     _themeService.addListener(_onUpdate);
   }
@@ -268,7 +267,219 @@ class _JackpotOverviewScreenState extends State<JackpotOverviewScreen> with Tick
                     ),
                   const SizedBox(height: 8),
                   
-                  // Hauptzahlen
+                  // Hauptzahlen als Kugeln
                   Wrap(
                     spacing: 6,
                     runSpacing: 6,
+                    children: (lastDraw['numbers'] as List<int>).map((number) {
+                      return buildNumberChip(number, primaryColor: system.primaryColor, isBall: true);
+                    }).toList(),
+                  ),
+
+                  // Bonus-Zahlen als Kugeln
+                  if (lastDraw['bonusNumbers'] != null && (lastDraw['bonusNumbers'] as List).isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _getBonusDrawLabel(system),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 6,
+                          children: (lastDraw['bonusNumbers'] as List<int>).map((number) {
+                            return buildNumberChip(number, isBonus: true, isBall: true);
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Countdown und Auswahl-Button
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange.shade200),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.access_time, color: Colors.orange, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Nächste Ziehung:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        AnimatedBuilder(
+                          animation: _timerController,
+                          builder: (context, child) {
+                            return Text(
+                              _formatCountdown(nextDraw),
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange.shade700,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LottoTipScreen(
+                            selectedSystem: system,
+                            onBack: () => Navigator.pop(context),
+                          ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: system.primaryColor,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Tipp erstellen'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getBonusLabel(LottoSystem system) {
+    switch (system.id) {
+      case 'lotto6aus49':
+        return 'Superzahl';
+      case 'eurojackpot':
+        return 'Eurozahlen';
+      case 'sans_topu':
+        return 'Bonus-Zahl';
+      default:
+        return 'Bonus';
+    }
+  }
+
+  String _getBonusDrawLabel(LottoSystem system) {
+    switch (system.id) {
+      case 'lotto6aus49':
+        return 'Superzahl:';
+      case 'eurojackpot':
+        return 'Eurozahlen:';
+      case 'sans_topu':
+        return 'Bonus-Zahl:';
+      default:
+        return 'Bonus-Zahlen:';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_languageService.getTranslation('appTitle')),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: _switchLanguage,
+            tooltip: 'Sprache wechseln',
+          ),
+          IconButton(
+            icon: Icon(_themeService.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: _toggleTheme,
+            tooltip: 'Theme wechseln',
+          ),
+          IconButton(
+            icon: const Icon(Icons.analytics),
+            onPressed: _navigateToStats,
+            tooltip: 'Statistik anzeigen',
+          ),
+          IconButton(
+            icon: const Icon(Icons.exit_to_app),
+            onPressed: () => SystemNavigator.pop(),
+            tooltip: 'App verlassen',
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Card(
+              color: Colors.blue.shade50,
+              child: const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Icon(Icons.celebration, size: 48, color: Colors.blue),
+                    SizedBox(height: 8),
+                    Text(
+                      'Lotto World Pro',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Wähle dein Lotto-System und erstelle Tipps',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.blue,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+            ..._systems.map((system) => _buildSystemCard(system)).toList(),
+            const SizedBox(height: 20),
+
+            Card(
+              color: Colors.grey.shade50,
+              child: const Padding(
+                padding: EdgeInsets.all(12.0),
+                child: Text(
+                  '💡 Tipp: Wähle ein Lotto-System aus um Tipps zu generieren.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

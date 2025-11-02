@@ -48,7 +48,6 @@ class _StatsScreenState extends State<StatsScreen> {
     final hotBonusNumbers = List<int>.from(stats['hotBonusNumbers'] ?? []);
     final coldBonusNumbers = List<int>.from(stats['coldBonusNumbers'] ?? []);
     final totalDraws = stats['totalDraws'] ?? 0;
-    final dateRange = Map<String, String>.from(stats['dateRange'] ?? {});
 
     return Scaffold(
       appBar: AppBar(

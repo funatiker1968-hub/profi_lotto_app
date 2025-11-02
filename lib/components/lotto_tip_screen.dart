@@ -152,7 +152,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Hauptzahlen
+                          // Hauptzahlen als Kugeln
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -168,18 +168,18 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                               Wrap(
                                 spacing: 10,
                                 runSpacing: 10,
-                                    .map((number) => buildNumberChip(
-                                      number,
-                                      primaryColor: widget.selectedSystem.primaryColor,
-                                      isBall: true,
-                                    ))
-                                    ))
-                                    .toList(),
+                                children: _currentTip['mainNumbers']!.map((number) {
+                                  return buildNumberChip(
+                                    number,
+                                    primaryColor: widget.selectedSystem.primaryColor,
+                                    isBall: true,
+                                  );
+                                }).toList(),
                               ),
                             ],
                           ),
 
-                          // Bonus-Zahlen
+                          // Bonus-Zahlen als Kugeln
                           if (_currentTip['bonusNumbers']!.isNotEmpty) ...[
                             const SizedBox(height: 16),
                             Column(
@@ -197,8 +197,13 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                                 Wrap(
                                   spacing: 10,
                                   runSpacing: 10,
-                                      .map((number) => buildNumberChip(number, isBonus: true, isBall: true))
-                                      .toList(),
+                                  children: _currentTip['bonusNumbers']!.map((number) {
+                                    return buildNumberChip(
+                                      number, 
+                                      isBonus: true, 
+                                      isBall: true
+                                    );
+                                  }).toList(),
                                 ),
                               ],
                             ),
@@ -233,7 +238,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Tipp-Historie
+                  // Tipp-Historie (rechteckige Chips)
                   const Text(
                     'Tipp-Historie:',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -260,7 +265,9 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                           ),
                           title: Wrap(
                             spacing: 8,
-                            children: numbers.map((number) => buildHistoryNumberChip(number, widget.selectedSystem.primaryColor)).toList(),
+                            children: numbers.map((number) {
+                              return buildHistoryNumberChip(number, widget.selectedSystem.primaryColor);
+                            }).toList(),
                           ),
                           trailing: IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
@@ -272,7 +279,7 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                           ),
                         ),
                       );
-                    }),
+                    }).toList(),
                 ],
               ),
             ),
