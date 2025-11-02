@@ -32,7 +32,7 @@ class LottoService {
       }
     }
 
-    numbers.sort();
+    numbers.sort(); // Immer nach Größe sortieren
     return numbers;
   }
 
@@ -50,6 +50,10 @@ class LottoService {
 
     final hotNumbers = sortedNumbers.take(6).map((e) => e.key).toList();
     final coldNumbers = sortedNumbers.reversed.take(6).map((e) => e.key).toList();
+
+    // Nach Größe sortieren für die Ausgabe
+    hotNumbers.sort();
+    coldNumbers.sort();
 
     return {
       'hotNumbers': hotNumbers,

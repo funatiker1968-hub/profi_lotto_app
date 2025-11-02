@@ -53,9 +53,13 @@ class _StatsScreenState extends State<StatsScreen> {
   Widget build(BuildContext context) {
     final stats = _currentStats;
     final hotNumbers = List<int>.from(stats['hotNumbers'] ?? []);
+    hotNumbers.sort();
     final coldNumbers = List<int>.from(stats['coldNumbers'] ?? []);
+    coldNumbers.sort();
     final hotBonusNumbers = List<int>.from(stats['hotBonusNumbers'] ?? []);
+    hotBonusNumbers.sort();
     final coldBonusNumbers = List<int>.from(stats['coldBonusNumbers'] ?? []);
+    coldBonusNumbers.sort();
     final totalDraws = stats['totalDraws'] ?? 0;
 
     return Scaffold(

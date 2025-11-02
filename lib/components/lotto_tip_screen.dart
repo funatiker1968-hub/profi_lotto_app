@@ -257,7 +257,9 @@ class _LottoTipScreenState extends State<LottoTipScreen> {
                         // Trenne Haupt- und Bonus-Zahlen falls möglich
                         final mainNumbersCount = widget.selectedSystem.mainNumbersCount;
                         final mainNumbers = numbers.take(mainNumbersCount).toList();
+                        mainNumbers.sort();
                         final bonusNumbers = numbers.skip(mainNumbersCount).toList();
+                        bonusNumbers.sort();
 
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
