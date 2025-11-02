@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/language_service.dart';
+import '../services/disclaimer_service.dart';
 import 'jackpot_overview_screen.dart';
 
 class DisclimberWrapper extends StatefulWidget {
@@ -11,12 +12,15 @@ class DisclimberWrapper extends StatefulWidget {
 
 class _DisclimberWrapperState extends State<DisclimberWrapper> {
   final LanguageService _languageService = LanguageService();
+  final DisclaimerService _disclaimerService = DisclaimerService();
   bool _accepted = false;
+  bool _checkingDisclaimer = true;
 
   @override
   void initState() {
     super.initState();
     _languageService.addListener(_onUpdate);
+    _checkDisclaimerStatus();
   }
 
   @override
@@ -29,89 +33,62 @@ class _DisclimberWrapperState extends State<DisclimberWrapper> {
     setState(() {});
   }
 
-  void _acceptDisclaimer() {
-    setState(() {
-      _accepted = true;
-    });
+  Future<void> _checkDisclaimerStatus() async {
+    final isAccepted = await _disclaimerService.isDisclaimerAccepted();
+    if (mounted) {
+      setState(() {
+        _accepted = isAccepted;
+        _checkingDisclaimer = false;
+      });
+    }
+  }
+
+  void _handleAccept() async {
+    await _disclaimerService.setDisclaimerAccepted();
+    if (mounted) {
+      setState(() {
+        _accepted = true;
+      });
+    }
+  }
+
+  void _handleDecline() {
+    // App wird automatisch geschlossen durch leeren Screen
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_accepted) {
-      return const JackpotOverviewScreen();
+    if (_checkingDisclaimer) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_languageService.getTranslation('disclaimerTitle')),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.language),
-            onPressed: () {
-              _languageService.switchLanguage();
-            },
-            tooltip: 'Sprache wechseln',
+    if (!_accepted) {
+      final texts = DisclaimerService.getDisclaimerTexts(_languageService.currentLanguage);
+      
+      return Scaffold(
+        body: AlertDialog(
+          title: Text(texts['title']!),
+          content: SingleChildScrollView(
+            child: Text(texts['content']!),
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Einfacher Disclaimer-Text
-            Card(
-              elevation: 4,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    const Icon(Icons.warning, size: 48, color: Colors.orange),
-                    const SizedBox(height: 16),
-                    Text(
-                      _getDisclaimerText(),
-                      style: const TextStyle(fontSize: 16, height: 1.5),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
+          actions: [
+            TextButton(
+              onPressed: _handleDecline,
+              child: Text(texts['decline']!),
             ),
-            
-            const SizedBox(height: 32),
-            
-            // Akzeptieren Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.check_circle),
-                label: Text(
-                  _languageService.getTranslation('accept'),
-                  style: const TextStyle(fontSize: 18),
-                ),
-                onPressed: _acceptDisclaimer,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                ),
-              ),
+            ElevatedButton(
+              onPressed: _handleAccept,
+              child: Text(texts['accept']!),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  String _getDisclaimerText() {
-    switch (_languageService.currentLanguage) {
-      case 'de':
-        return 'Diese App dient Unterhaltungszwecken. Lotto ist ein Glücksspiel. Sie bestätigen, das Mindestalter erreicht zu haben.';
-      case 'en':
-        return 'This app is for entertainment purposes. Lotto is a game of chance. You confirm you have reached the minimum age.';
-      case 'tr':
-        return 'Bu uygulama eğlence amaçlıdır. Loto bir şans oyunudur. Asgari yaşa ulaştığınızı onaylıyorsunuz.';
-      default:
-        return 'This app is for entertainment purposes.';
+      );
     }
+
+    return const JackpotOverviewScreen();
   }
 }
