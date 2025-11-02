@@ -17,12 +17,20 @@ class _StatsScreenState extends State<StatsScreen> {
   final LanguageService _languageService = LanguageService();
   final ThemeService _themeService = ThemeService();
   LottoSystem _selectedSystem = LottoSystemService.getAvailableSystems().first;
+  
+  // Cache für Statistiken - verhindert Neugenerierung bei Sprach/Theme-Änderung
+  final Map<String, Map<String, dynamic>> _statsCache = {};
 
   @override
   void initState() {
     super.initState();
     _languageService.addListener(_onUpdate);
     _themeService.addListener(_onUpdate);
+    
+    // Initialisiere Cache für alle Systeme
+    for (final system in _systems) {
+      _statsCache[system.id] = HistoricalDataService.analyzeHistoricalData(system.id);
+    }
   }
 
   @override
@@ -33,11 +41,12 @@ class _StatsScreenState extends State<StatsScreen> {
   }
 
   void _onUpdate() {
-    setState(() {});
+    setState(() {}); // Nur UI aktualisieren, keine Daten neu generieren
   }
 
   Map<String, dynamic> get _currentStats {
-    return HistoricalDataService.analyzeHistoricalData(_selectedSystem.id);
+    // Verwende gecachte Daten statt neu zu generieren
+    return _statsCache[_selectedSystem.id] ?? {};
   }
 
   @override
@@ -112,6 +121,62 @@ class _StatsScreenState extends State<StatsScreen> {
 
             const SizedBox(height: 20),
 
+            // Analyse-Info
+            Card(
+              color: Colors.blue.shade50,
+              child: const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '📊 Statistik-Info',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Basierend auf historischen Daten der letzten 10 Jahre',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Daten werden nur beim Systemwechsel neu geladen',
+                      style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Übersicht
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _languageService.getTranslation('statisticsOverview'),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildStatItem('Analysierte\nZiehungen', totalDraws.toString()),
+                        _buildStatItem('Zeitraum', '10 Jahre'),
+                        _buildStatItem('System', _selectedSystem.name),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
             // Heiße Zahlen
             Card(
               child: Padding(
@@ -125,7 +190,7 @@ class _StatsScreenState extends State<StatsScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      '${_languageService.getTranslation('mostFrequentlyDrawn')} (${_languageService.getTranslation('basedOn')} $totalDraws ${_languageService.getTranslation('draws')})',
+                      '${_languageService.getTranslation('mostFrequentlyDrawn')}',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 12),
@@ -198,7 +263,7 @@ class _StatsScreenState extends State<StatsScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      '${_languageService.getTranslation('leastFrequentlyDrawn')} (${_languageService.getTranslation('basedOn')} $totalDraws ${_languageService.getTranslation('draws')})',
+                      '${_languageService.getTranslation('leastFrequentlyDrawn')}',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 12),
@@ -261,15 +326,15 @@ class _StatsScreenState extends State<StatsScreen> {
             // Info
             Card(
               color: Colors.blue.shade50,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
+              child: const Padding(
+                padding: EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    const Icon(Icons.info, color: Colors.blue, size: 24),
-                    const SizedBox(height: 8),
+                    Icon(Icons.info, color: Colors.blue, size: 24),
+                    SizedBox(height: 8),
                     Text(
-                      _languageService.getTranslation('statisticsDisclaimer'),
-                      style: const TextStyle(fontSize: 12, color: Colors.blue),
+                      'Diese Statistik basiert auf historischen Ziehungsdaten. Vergangene Ergebnisse sind kein Indikator für zukünftige Gewinne.',
+                      style: TextStyle(fontSize: 12, color: Colors.blue),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -279,6 +344,23 @@ class _StatsScreenState extends State<StatsScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 11, color: Colors.grey),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 
